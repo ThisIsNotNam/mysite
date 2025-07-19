@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Home - My Site{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-4">Welcome to MySite</h1>
+    <p class="lead">This is a simple Django website using Bootstrap 5 for styling.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Feature 1</h5>
+                <p class="card-text">Quick info about something cool your site offers.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mt-4 mt-md-0">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Feature 2</h5>
+                <p class="card-text">Maybe something about your services or user benefits.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mt-4 mt-md-0">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Feature 3</h5>
+                <p class="card-text">Highlight how users can get started or sign up.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
