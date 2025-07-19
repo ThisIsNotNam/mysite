@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}My Posts{% endblock %}
+
+{% block content %}
+
+{% if user.is_staff %}
+<form method="get" class="d-flex justify-content-end align-items-center mb-3">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="showAll" name="show_all" value="1"
+            {% if request.GET.show_all %}checked{% endif %}>
+        <label class="form-check-label ms-2" for="showAll">Show all users’ posts</label>
+    </div>
+    <button class="btn btn-sm btn-outline-primary ms-3" type="submit">Apply</button>
+</form>
+{% endif %}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">My Posts</h1>
+        <a href="/posts/new" class="btn btn-success">+ New Post</a>
+    </div>
+
+    {% if posts %}
+        <div class="list-group">
+            {% for post in posts %}
+                <div class="list-group-item position-relative">
+
+                    <!-- Delete Button -->
+                    <form method="post" action="/posts/{{ post.id }}/delete/"
+                          class="position-absolute top-0 end-0 m-2"
+                          onsubmit="return confirm('Are you sure you want to delete this post?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+
+                    <h5 class="mb-1">{{ post.title }}</h5>
+
+                    {% if user.is_staff %}
+                        <small class="text-muted">Posted by @{{ post.author }} on {{ post.date|date:"F j, Y, g:i a" }}</small>
+                    {% else %}
+                        <small class="text-muted">Posted on {{ post.date|date:"M d, Y" }}</small>
+                    {% endif %}
+
+                    <p class="mt-2 mb-0 text-body">{{ post.body|linebreaks }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You haven’t created any posts yet.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
