@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 # from django.views.decorators.http import require_POST
 # from django.contrib.auth.decorators import login_required
 from django.db.models import Count
@@ -16,20 +16,49 @@ def deletePost(request, postId):
         return redirect("/posts/")
     return redirect("/homepage/")
 
+from django.template.loader import render_to_string
+from django.http import JsonResponse
+
+from django.db.models import Count, Q
+from django.shortcuts import render, redirect
+
 def postsList(request):
-    if request.user.is_authenticated:
-
-        posts=Post.objects.filter(author=request.user).order_by('-date')
-        canShowAll=request.user.is_staff and request.GET.get("show_all")=="1"
-        if canShowAll:
-            posts=Post.objects.all().order_by('-date')
-            
-        for post in posts:
-            post.userVote = post.get_user_vote(request.user) if request.user.is_authenticated else None
-
-        return render(request, "postsList.html", {'posts': posts, 'canShowAll': canShowAll})
-    else:
+    if not request.user.is_authenticated:
         return redirect("/")
+    canShowAll = request.user.is_staff and request.GET.get("show_all") == "1"
+
+    # Base queryset
+    postsQuery = Post.objects.all() if canShowAll else Post.objects.filter(author=request.user)
+
+    # Annotate upvote/downvote counts for sorting
+    postsQuery = postsQuery.annotate(
+        upvotes=Count('votes', filter=Q(votes__voteType='up')),
+        downvotes=Count('votes', filter=Q(votes__voteType='down'))
+    )
+
+    selected = request.POST.get('selected_option')
+
+    # Handle sorting
+    if request.method == 'POST':
+        if selected == 'upVote':
+            postsQuery = postsQuery.order_by('-upvotes', 'downvotes')
+        elif selected == 'downVote':
+            postsQuery = postsQuery.order_by('-downvotes', 'upvotes')
+        else:
+            postsQuery = postsQuery.order_by('-date')
+    else:
+        postsQuery = postsQuery.order_by('-date')  # Default sort by time
+
+    posts = postsQuery
+
+    for post in posts:
+        post.userVote = post.get_user_vote(request.user)
+
+    return render(request, "postsList.html", {
+        'posts': posts,
+        'canShowAll': canShowAll
+    })
+
 
 def newPost(request):
     if request.user.is_authenticated:
