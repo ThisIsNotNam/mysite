@@ -1,19 +1,43 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from post.models import Post, Vote
+from django.db.models import OuterRef, Subquery, CharField, Value
+from django.db.models.functions import Coalesce
+
+from django.shortcuts import render, redirect, get_object_or_404
 
 def signup(request):
     if request.method == "POST":
-        # print("POST received")
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            # print("Form is valid")
             form.save()
             return redirect("/accounts/login")
-        # else:
-            # print("Form errors:", form.errors)
     else:
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
 
 def accountsRedirect(request):
     return redirect("login/")
+
+
+def viewProfile(request, profileId):
+    profileUser = get_object_or_404(User, id=profileId)
+
+    # Subquery to get the current user's vote on each post
+    user_vote_subquery = Vote.objects.filter(
+        post=OuterRef('pk'),
+        user=request.user
+    ).values('voteType')[:1]
+
+    # Annotate each post with the user's vote
+    posts = Post.objects.filter(author=profileUser).order_by('-date').annotate(
+        userVote=Coalesce(
+            Subquery(user_vote_subquery, output_field=CharField()),
+            Value('none')
+        )
+    )
+
+    return render(request, "account.html", {
+        "profileUser": profileUser,
+        "posts": posts
+    })

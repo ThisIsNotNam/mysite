@@ -1,8 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
-# from django.views.decorators.http import require_POST
-# from django.contrib.auth.decorators import login_required
-from django.db.models import Count
+from django.http import JsonResponse
+from django.db.models import OuterRef, Subquery, Q, Count, CharField, Value
+from django.db.models.functions import Coalesce
 import json
 from datetime import timedelta
 from django.utils import timezone
@@ -18,12 +17,6 @@ def deletePost(request, postId):
         return redirect("/posts/")
     return redirect("/homepage/")
 
-from django.template.loader import render_to_string
-from django.http import JsonResponse
-
-from django.db.models import Count, Q
-from django.shortcuts import render, redirect
-
 def postsList(request):
     if not request.user.is_authenticated:
         return redirect("/")
@@ -32,11 +25,23 @@ def postsList(request):
     # Base queryset
     postsQuery = Post.objects.all() if canShowAll else Post.objects.filter(author=request.user)
 
-    # Annotate upvote/downvote counts for sorting
+    # Subquery to get user's vote
+    user_vote_subquery = Vote.objects.filter(
+        post=OuterRef('pk'),
+        user=request.user
+    ).values('voteType')[:1]
+
+
+    # Annotate with upvotes, downvotes, and userVote
     postsQuery = postsQuery.annotate(
         upvotes=Count('votes', filter=Q(votes__voteType='up')),
-        downvotes=Count('votes', filter=Q(votes__voteType='down'))
+        downvotes=Count('votes', filter=Q(votes__voteType='down')),
+        userVote=Coalesce(
+            Subquery(user_vote_subquery, output_field=CharField()),
+            Value('none')
+        )
     )
+
 
     selectedSortOption = request.POST.get('selectedSortOption') or 'time'
     selectedFilterOption = request.POST.get('selectedFilterOption') or 'all'

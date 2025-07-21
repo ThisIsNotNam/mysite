@@ -52,7 +52,7 @@
                             <a class="nav-link" href="/posts">Posts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">@{{ user.username }}</a>
+                            <a class="nav-link" href="/accounts/{{ request.user.id }}">@{{ user.username }}</a>
                         </li>
                         <li class="nav-item">
                             <form action="/accounts/logout/" method="post" style="display: inline;">
