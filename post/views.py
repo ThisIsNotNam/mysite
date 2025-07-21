@@ -4,6 +4,8 @@ from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 # from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 import json
+from datetime import timedelta
+from django.utils import timezone
 from . import forms
 from .models import Post, Vote
 
@@ -36,27 +38,40 @@ def postsList(request):
         downvotes=Count('votes', filter=Q(votes__voteType='down'))
     )
 
-    selected = request.POST.get('selected_option')
+    selectedSortOption = request.POST.get('selectedSortOption') or 'time'
+    selectedFilterOption = request.POST.get('selectedFilterOption') or 'all'
 
-    # Handle sorting
+
+    # Handle sorting and filtering
     if request.method == 'POST':
-        if selected == 'upVote':
+        #Sort
+        if selectedSortOption == 'upVote':
             postsQuery = postsQuery.order_by('-upvotes', 'downvotes')
-        elif selected == 'downVote':
+        elif selectedSortOption == 'downVote':
             postsQuery = postsQuery.order_by('-downvotes', 'upvotes')
         else:
             postsQuery = postsQuery.order_by('-date')
+
+        #Filter
+        if selectedFilterOption == 'day':
+            postsQuery = postsQuery.filter(date__gte=timezone.now() - timedelta(days=1))
+        elif selectedFilterOption == 'week':
+            postsQuery = postsQuery.filter(date__gte=timezone.now() - timedelta(weeks=1))
+        elif selectedFilterOption == 'month':
+            postsQuery = postsQuery.filter(date__gte=timezone.now() - timedelta(days=30))
+        # else: all time
+
     else:
         postsQuery = postsQuery.order_by('-date')  # Default sort by time
 
-    posts = postsQuery
-
-    for post in posts:
+    for post in postsQuery:
         post.userVote = post.get_user_vote(request.user)
 
     return render(request, "postsList.html", {
-        'posts': posts,
-        'canShowAll': canShowAll
+        'posts': postsQuery,
+        'canShowAll': canShowAll,
+        'selectedSortOption': selectedSortOption,
+        'selectedFilterOption': selectedFilterOption
     })
 
 

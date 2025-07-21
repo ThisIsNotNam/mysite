@@ -33,13 +33,13 @@ My Posts
         </h1>
         <a href="/posts/new" class="btn btn-success">+ New Post</a>
     </div>
-
+<!--------------------------------------------------------------------------------------------------->
     {% if posts %}
         <div class="list-group" id="posts-container">
             {% for post in posts %}
                 <div class="list-group-item position-relative">
-
-                    <!-- Delete Button -->
+<!--------------------------------------------------------------------------------------------------->
+<!-- Delete Button -->
                     <form method="post" action="/posts/{{ post.id }}/delete/"
                           class="position-absolute top-0 end-0 m-2"
                           onsubmit="return confirm('Are you sure you want to delete this post?');">
@@ -48,7 +48,7 @@ My Posts
                             <i class="bi bi-trash"></i>
                         </button>
                     </form>
-
+<!--------------------------------------------------------------------------------------------------->
                     <h5 class="mb-1">{{ post.title }}</h5>
 
                     {% if user.is_staff %}
@@ -56,10 +56,14 @@ My Posts
                     {% else %}
                         <small class="text-muted">Posted on {{ post.date|date:"M d, Y" }}</small>
                     {% endif %}
-
-                    <p class="mt-2 mb-0 text-body">{{ post.body|linebreaks }}</p>
-
-                    <div class="d-flex align-items-center" data-post-id="{{ post.id }}">
+<!--------------------------------------------------------------------------------------------------->
+                    <div class="post-body post-body-clamp">
+                    {{ post.body }}
+                    </div>
+                    <a class="see-more-text link-secondary text-decoration-underline" href="#">See more...</a>
+<!--------------------------------------------------------------------------------------------------->
+<!--vote options-->
+                    <div class="d-flex align-items-center mt-4" data-post-id="{{ post.id }}">
                         <button
                             class="btn btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
                             👍 <span class="upvote-count">{{ post.get_upvotes }}</span>
@@ -82,39 +86,36 @@ My Posts
 </div>
 
 <!--------------------------------------------------------------------------------------------------->
-<!--sort options-->
+<!--sort and filter options-->
 
-<form method="post" class="mt-2">
-  {% csrf_token %}
-  <div class="d-flex justify-content-end mb-3" style="margin-right: 0.75rem;">
-    <div class="dropdown">
-      <button
-        class="btn btn-secondary dropdown-toggle"
-        type="button"
-        id="dropdownMenuButton"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-      >
-        {% if selectedOption == "upVote" %}
-          Sorted by Upvotes
-        {% elif selectedOption == "downVote" %}
-          Sorted by Downvotes
-        {% else %}
-          Sorted by Time
-        {% endif %}
-      </button>
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <li><button class="dropdown-item" type="submit" name="selected_option" value="time">Sort by Time</button></li>
-        <li><button class="dropdown-item" type="submit" name="selected_option" value="upVote">Sort by Upvotes</button></li>
-        <li><button class="dropdown-item" type="submit" name="selected_option" value="downVote">Sort by Downvotes</button></li>
-      </ul>
+<div class="container"> <!-- or use the same padding as your posts list -->
+
+  <!-- Sorting & Filtering Form -->
+  <form method="post" class="mt-2">
+    {% csrf_token %}
+    <div class="d-flex justify-content-end mb-3">
+      
+      <select name="selectedSortOption" class="form-select form-select-sm rounded shadow-none me-2" onchange="this.form.submit()">
+        <option value="time" {% if selectedSortOption == "time" %}selected{% endif %}>Sort by Time</option>
+        <option value="upVote" {% if selectedSortOption == "upVote" %}selected{% endif %}>Sort by Upvotes</option>
+        <option value="downVote" {% if selectedSortOption == "downVote" %}selected{% endif %}>Sort by Downvotes</option>
+      </select>
+
+      <select name="selectedFilterOption" class="form-select form-select-sm rounded shadow-none" onchange="this.form.submit()">
+        <option value="all" {% if selectedFilterOption == "all" %}selected{% endif %}>All Time</option>
+        <option value="day" {% if selectedFilterOption == "day" %}selected{% endif %}>Last Day</option>
+        <option value="week" {% if selectedFilterOption == "week" %}selected{% endif %}>Last Week</option>
+        <option value="month" {% if selectedFilterOption == "month" %}selected{% endif %}>Last Month</option>
+      </select>
+
     </div>
+  </form>
+
+  <!-- Your posts list here -->
+  <div class="list-group" id="posts-container">
+    <!-- posts go here -->
   </div>
-</form>
-
-
-
-
+</div>
 
 {% endblock %}
 
@@ -179,5 +180,39 @@ document.addEventListener('DOMContentLoaded', function () {
         this.form.submit();
     });
 });
+
+//See more / See less logic
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.post-body').forEach(post => {
+        const seeMore = post.nextElementSibling;
+
+        // Create a clone to measure height
+        const clone = post.cloneNode(true);
+        clone.style.position = 'absolute';
+        clone.style.visibility = 'hidden';
+        clone.style.height = 'auto';
+        clone.style.maxHeight = 'none';
+        clone.style.webkitLineClamp = 'unset';
+        clone.classList.remove('post-body-clamp');
+        document.body.appendChild(clone);
+
+        if (clone.offsetHeight <= post.offsetHeight) {
+            seeMore.style.display = 'none';
+        }
+
+        document.body.removeChild(clone);
+    });
+
+    document.querySelectorAll('.see-more-text').forEach(span => {
+        span.addEventListener('click', function () {
+            const post = this.previousElementSibling;
+            post.classList.toggle('expanded');
+            this.textContent = post.classList.contains('expanded') ? 'See less' : 'See more...';
+        });
+    });
+});
+
+
+
 </script>
 {% endblock %}

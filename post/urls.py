@@ -6,5 +6,4 @@ urlpatterns = [
     path("new/", views.newPost),
     path("<int:postId>/delete/", views.deletePost),
     path("vote/", views.votePost, name='votePost'),
-    path("sort-option/", views.postsList)
 ]
