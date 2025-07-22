@@ -16,9 +16,6 @@ def signup(request):
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
 
-def accountsRedirect(request):
-    return redirect("login/")
-
 
 def viewProfile(request, profileId):
     profileUser = get_object_or_404(User, id=profileId)
@@ -41,3 +38,11 @@ def viewProfile(request, profileId):
         "profileUser": profileUser,
         "posts": posts
     })
+
+
+def accountsList(request):
+    if request.user.is_authenticated:
+        users=User.objects.all().order_by('-date_joined')
+        return render(request ,"accountsList.html", {"users": users})
+    else:
+        return redirect("/")

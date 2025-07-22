@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}
+Users
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3">Users</h1>
+        {% if user.is_staff %}
+        <a href="{% url 'admin:auth_user_add' %}" class="btn btn-success">+ Add User</a>
+        {% endif %}
+    </div>
+
+    {% if users %}
+        <div class="list-group">
+            {% for user in users %}
+                <div class="list-group-item d-flex justify-content-between align-items-start position-relative user-clickable" data-href="{{ user.id }}" style="cursor: pointer;">
+                    
+                    <div>
+                        <h5 class="mb-1">@{{ user.username }}</h5>
+                        <small class="text-muted">
+                            Joined on {{ user.date_joined|date:"M d, Y" }}
+                            {% if user.is_staff %}- <span class="text-warning">Staff</span>{% endif %}
+                        </small>
+                        {% if user.profile.bio %}
+                        <div class="mt-2 text-muted small">{{ user.profile.bio }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No users found.
+        </div>
+    {% endif %}
+</div>
+<script>
+    // Make user blocks clickable
+    document.querySelectorAll(".user-clickable").forEach(item => {
+        item.addEventListener("click", e => {
+            if (!e.target.closest("form")) {
+                window.location = item.dataset.href;
+            }
+        });
+    });
+</script>
+
+{% endblock %}

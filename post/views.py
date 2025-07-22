@@ -21,7 +21,7 @@ def deletePost(request, postId):
 def postsList(request):
     if not request.user.is_authenticated:
         return redirect("/")
-    canShowAll = request.user.is_staff and request.GET.get("show_all") == "1"
+    canShowAll = request.GET.get("show_all") == "1"
 
     # Base queryset
     postsQuery = Post.objects.all() if canShowAll else Post.objects.filter(author=request.user)
