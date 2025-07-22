@@ -14,7 +14,8 @@ def deletePost(request, postId):
             post=get_object_or_404(Post, id=postId)
             if request.user==post.author or request.user.is_staff:
                 post.delete()
-        return redirect("/posts/")
+        next=request.POST.get("next", "/posts/")
+        return redirect(next)
     return redirect("/homepage/")
 
 def postsList(request):
@@ -36,10 +37,7 @@ def postsList(request):
     postsQuery = postsQuery.annotate(
         upvotes=Count('votes', filter=Q(votes__voteType='up')),
         downvotes=Count('votes', filter=Q(votes__voteType='down')),
-        userVote=Coalesce(
-            Subquery(user_vote_subquery, output_field=CharField()),
-            Value('none')
-        )
+        userVote=Subquery(user_vote_subquery, output_field=CharField())
     )
 
 
@@ -68,9 +66,6 @@ def postsList(request):
 
     else:
         postsQuery = postsQuery.order_by('-date')  # Default sort by time
-
-    for post in postsQuery:
-        post.userVote = post.get_user_vote(request.user)
 
     return render(request, "postsList.html", {
         'posts': postsQuery,
@@ -131,3 +126,13 @@ def votePost(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def postsDetail(request, postId):
+    if not request.user.is_authenticated:
+        return redirect("/")
+    post=get_object_or_404(Post, id=postId)
+    post.upvotes=post.get_upvotes()
+    post.downvotes=post.get_downvotes()
+    post.userVote=post.get_user_vote(request.user)
+
+    return render(request, "postDetail.html", {'post': post})

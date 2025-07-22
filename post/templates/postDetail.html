@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ post.title }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+<div class="container mt-4">
+
+  <!-- Back button -->
+  <a href="javascript:history.back()" class="btn btn-secondary mb-3">← Back</a>
+
+  <!-- Metadata at the very top -->
+  <div class="mb-2 text-muted small">
+    {% if user.is_staff %}
+      Posted by @{{ post.author }} on {{ post.date|date:"F j, Y, g:i a" }}
+    {% else %}
+      Posted on {{ post.date|date:"M d, Y" }}
+    {% endif %}
+  </div>
+
+  <!-- Combined Title + Body -->
+  <div class="border rounded p-3 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h1 class="h3 mb-0">{{ post.title }}</h1>
+      {% if user == post.author or user.is_staff %}
+      <div class="d-flex">
+        <a href="/posts/{{ post.id }}/edit/" class="btn btn-outline-primary me-2">Edit</a>
+        <form method="post" action="/posts/{{ post.id }}/delete/" onsubmit="return confirm('Are you sure you want to delete this post?');">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="/posts/">
+          <button type="submit" class="btn btn-outline-danger">Delete</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="fs-5">
+      {{ post.body|linebreaksbr }}
+    </div>
+  </div>
+
+  <!-- Voting -->
+  <div class="d-flex align-items-center border rounded p-2" data-post-id="{{ post.id }}">
+    <button
+      class="btn btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
+      👍 <span class="upvote-count">{{ post.upvotes }}</span>
+    </button>
+
+    <button
+      class="btn btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} downvote-btn">
+      👎 <span class="downvote-count">{{ post.downvotes }}</span>
+    </button>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.upvote-btn, .downvote-btn').forEach(button => {
+    button.addEventListener('click', function () {
+      const postElement = this.closest('[data-post-id]');
+      const postId = postElement.getAttribute('data-post-id');
+      const voteType = this.classList.contains('upvote-btn') ? 'up' : 'down';
+
+      fetch('/posts/vote/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ postId, voteType })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.up !== undefined && data.down !== undefined) {
+          const formatter = new Intl.NumberFormat('en', {
+            notation: 'compact',
+            compactDisplay: 'short'
+          });
+
+          postElement.querySelector('.upvote-count').textContent = formatter.format(data.up);
+          postElement.querySelector('.downvote-count').textContent = formatter.format(data.down);
+
+          const upBtn = postElement.querySelector('.upvote-btn');
+          const downBtn = postElement.querySelector('.downvote-btn');
+
+          upBtn.classList.remove('btn-success', 'btn-outline-success');
+          downBtn.classList.remove('btn-danger', 'btn-outline-danger');
+
+          if (data.userVote === 'up') {
+            upBtn.classList.add('btn-success');
+            downBtn.classList.add('btn-outline-danger');
+          } else if (data.userVote === 'down') {
+            upBtn.classList.add('btn-outline-success');
+            downBtn.classList.add('btn-danger');
+          } else {
+            upBtn.classList.add('btn-outline-success');
+            downBtn.classList.add('btn-outline-danger');
+          }
+        } else {
+          console.error(data.error);
+        }
+      })
+      .catch(err => console.error('Request failed:', err));
+    });
+  });
+});
+</script>
+{% endblock %}

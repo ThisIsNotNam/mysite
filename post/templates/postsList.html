@@ -37,13 +37,14 @@ My Posts
     {% if posts %}
         <div class="list-group" id="posts-container">
             {% for post in posts %}
-                <div class="list-group-item position-relative">
+                <div class="list-group-item position-relative post-clickable" data-href="/posts/{{ post.id }}/" style="cursor: pointer;">
 <!--------------------------------------------------------------------------------------------------->
 <!-- Delete Button -->
                     <form method="post" action="/posts/{{ post.id }}/delete/"
                           class="position-absolute top-0 end-0 m-2"
                           onsubmit="return confirm('Are you sure you want to delete this post?');">
                         {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
                             <i class="bi bi-trash"></i>
                         </button>
@@ -66,12 +67,12 @@ My Posts
                     <div class="d-flex align-items-center mt-4" data-post-id="{{ post.id }}">
                         <button
                             class="btn btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
-                            👍 <span class="upvote-count">{{ post.get_upvotes }}</span>
+                            👍 <span class="upvote-count">{{ post.upvotes }}</span>
                         </button>
 
                         <button
                             class="btn btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} downvote-btn">
-                            👎 <span class="downvote-count">{{ post.get_downvotes }}</span>
+                            👎 <span class="downvote-count">{{ post.downvotes }}</span>
                         </button>
                     </div>
 
@@ -110,11 +111,6 @@ My Posts
 
     </div>
   </form>
-
-  <!-- Your posts list here -->
-  <div class="list-group" id="posts-container">
-    <!-- posts go here -->
-  </div>
 </div>
 
 {% endblock %}
@@ -212,7 +208,34 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+// Clickable post
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.post-clickable').forEach(div => {
+        div.addEventListener('click', function (e) {
+            const target = e.target;
 
+            // Ignore clicks on buttons, forms, or links
+            if (
+                target.closest('button') ||
+                target.closest('form') ||
+                target.classList.contains('see-more-text')
+            ) {
+                return;
+            }
+
+            const href = this.getAttribute('data-href');
+            if (href) {
+                window.location.href = href;
+            }
+        });
+    });
+});
+
+window.addEventListener('pageshow', function (event) {
+    if (event.persisted || (window.performance && performance.navigation.type === 2)) {
+        window.location.reload();
+    }
+});
 
 </script>
 {% endblock %}
