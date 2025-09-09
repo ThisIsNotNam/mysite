@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'authenticate',
     'widget_tweaks',
     'post',
+    'tkb'
 ]
 
 MIDDLEWARE = [
@@ -138,3 +139,5 @@ LOGIN_REDIRECT_URL = '/homepage/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+DEFAULT_CHARSET = "utf-8"

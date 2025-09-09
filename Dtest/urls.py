@@ -28,4 +28,5 @@ urlpatterns = [
     path("accounts/", include("authenticate.urls")),
     path("", homeRedirect),
     path("posts/", include("post.urls")),
+    path("tkb/", include("tkb.urls"))
 ]

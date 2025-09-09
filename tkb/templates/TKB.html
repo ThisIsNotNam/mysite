@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}TKB - TK6CHT{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <h2 class="mb-4">Thời Khóa Biểu - Lớp TK6CHT</h2>
+  
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover align-middle">
+      <tbody>
+        {% for row in mtx %}
+          <tr>
+            {% for cell in row %}
+              <td>{{ cell }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
