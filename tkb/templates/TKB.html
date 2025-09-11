@@ -5,11 +5,28 @@
 {% block content %}
 
 <div class="container my-4">
-  <div class="dialog-glow">
+  <div class="dialog-glow all-l-ani-1">
     <div class="spinner-rt" role="status">
-      <span class="visually-hidden">Loading...</span>
+      <span class="visually-hidden all-l-ani-1">Loading...</span>
     </div>
-    <div class="dialog-text" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;font-size: 1.75rem;text-shadow: 0 0 10px rgba(255, 255, 255, .8);"></div>
+    <div class="dialog-text all-l-ani-1" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;font-size: 1.75rem;text-shadow: 0 0 10px rgba(255, 255, 255, .8);"></div>
+  </div>
+  <div class="dialog-box">
+    <button class="butn-close-dialog-info all-l-ani-1" type="button" aria-label="Close" onclick="closeDialogInfo()">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M18 6 L6 18"></path>
+        <path d="M6 6 L18 18"></path>
+      </svg>
+    </button>
+    <div class="dialog-div all-l-ani-1">
+      <div class="dialog-wrap-icon all-l-ani-1">
+        <img src="https://cdn-icons-png.flaticon.com/512/4201/4201973.png" alt="Info Icon" class="dialog-icon all-l-ani-1">
+        <h5 class="dialog-msgtitle all-l-ani-1">Error</h5>
+      </div>
+      <div class="dialog-wrap-text all-l-ani-1">
+        <div class="dialog-string all-l-ani-1"></div>
+      </div>
+    </div>
   </div>
   <div class="title-tkb-1 text-center mb-4 anim-l-1">
     <h2 class="all-l-ani-1" id="title-tkb">Thời Khoá Biểu - 10 Tin Chuyên Hà Tĩnh</h2>
@@ -21,10 +38,18 @@
         {% for row in mtx %}
           <tr class="all-l-ani-1">
             {% for cell in row %}
-              {% if forloop.counter == day %}
-                <td class="all-l-ani-1" id="day-match">{{ cell }}</td>
+              {% if errcode == 0 %}
+                {% if forloop.counter == day %}
+                  <td class="all-l-ani-1" id="day-match">{{ cell }}</td>
+                {% else %}
+                  <td class="all-l-ani-1">{{ cell }}</td>
+                {% endif %}
               {% else %}
-                <td class="all-l-ani-1">{{ cell }}</td>
+                {% if forloop.parentloop.counter == 2 and forloop.counter == 2 %}
+                  <td class="all-l-ani-1" id="err-match">{{ cell }}</td>
+                {% else %}
+                  <td class="all-l-ani-1">{{ cell }}</td>
+                {% endif %}
               {% endif %}
             {% endfor %}
           </tr>
@@ -38,19 +63,59 @@
 <script>
   const dialogGlow = document.querySelector('.dialog-glow');
   const dialogText = document.querySelector('.dialog-text');
+  const dialogBox = document.querySelector('.dialog-box');
+  const dialogString = document.querySelector('.dialog-string');
   const tkbTitle = document.getElementById('title-tkb');
+  const errcode = `{{ errcode }}`;
+  const errstr = `{{ errstr }}`;
   const dayMatch = document.querySelectorAll('#day-match');
+  const errMatch = document.querySelectorAll('#err-match');
+
+  function shortenMiddle(str, maxLength) {
+    // Trường hợp bất thường
+    if (typeof str !== "string") return "";
+    if (typeof maxLength !== "number" || maxLength <= 0) return "";
+    if (str.length <= maxLength) return str;
+
+    const ellipsis = "...";
+    if (maxLength <= ellipsis.length) {
+        // Nếu maxLength nhỏ hơn hoặc bằng số ký tự của "..."
+        return ellipsis.slice(0, maxLength);
+    }
+
+    // Tính toán phần đầu và cuối cần giữ lại
+    const charsToShow = maxLength - ellipsis.length;
+    const front = Math.ceil(charsToShow / 2);
+    const back = Math.floor(charsToShow / 2);
+
+    return str.slice(0, front) + ellipsis + str.slice(str.length - back);
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     // Simulate data loading
     openDialog("Please wait, loading TKB databases...");
     setTimeout(() => {
       closeDialog();
-      dayMatch.forEach(el => {
-        // el.style.backgroundColor = '#fffae6'; // Light yellow background
-        // el.style.fontWeight = 'bold'; // Bold text
-        // el.style.color = '#d97706'; // Dark orange text
-        el.style.animation = 'highlightDay 1s ease forwards';
-      });
+      if (errcode === `0`) {
+        dayMatch.forEach(el => {
+          // el.style.backgroundColor = '#fffae6'; // Light yellow background
+          // el.style.fontWeight = 'bold'; // Bold text
+          // el.style.color = '#d97706'; // Dark orange text
+          el.style.animation = 'highlightDay 1s ease forwards';
+        });
+      } else {
+        const buttonError = document.createElement('button');
+        buttonError.className = 'errorLink';
+        buttonError.innerHTML = shortenMiddle(errstr, 63) + "  <strong><i>----  Click for details</i></strong>";
+        buttonError.onclick = function() {
+          openDialogInfo(errstr);
+        };
+        errMatch.forEach(el => {
+          el.innerHTML = ''; // Clear existing content
+          el.appendChild(buttonError);
+          el.style.animation = 'highlightErr 1s ease forwards';
+        });
+      }
     }, 1000); // Simulate a 1.2 second load time
   });
 
@@ -66,6 +131,20 @@
     setTimeout(() => {
       dialogGlow.style.display = 'none';
     }, 700); // Match the fade-out duration
+  }
+
+  function openDialogInfo(textmsg) {
+    dialogString.textContent = textmsg;
+    dialogBox.style.opacity = '0';
+    dialogBox.style.display = 'flex';
+    dialogBox.style.animation = 'fadeIn1 .3s ease forwards';
+  }
+
+  function closeDialogInfo() {
+    dialogBox.style.animation = 'fadeOut1 .3s ease forwards';
+    setTimeout(() => {
+      dialogBox.style.display = 'none';
+    }, 310); // Match the fade-out duration
   }
 </script>
 

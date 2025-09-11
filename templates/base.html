@@ -252,12 +252,241 @@
             z-index: 999999;
         }
 
+        .dialog-icon {
+            width: 7rem;
+            height: 7rem;
+            display: inline-flex;
+            margin-bottom: 1.3rem;
+            margin-top: 1.3rem;
+            margin-left: 1.3rem;
+        }
+
+        .dialog-string {
+            font-family: Consolas, "Courier New", Courier, monospace;
+            font-size: 1.25rem;
+            display: block;
+            position: relative;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            align-items: center;
+            justify-content: center;
+            overflow-wrap: anywhere;
+            word-wrap: break-all;
+            white-space: normal;
+            hyphens: auto;
+        }
+
+        .dialog-msgtitle {
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-size: 1.5rem;
+            font-weight: bold;
+            white-space: nowrap;
+            align-self: center;
+            align-items: center;
+            align-content: center;
+            text-shadow: 0 0 1.3rem rgba(128, 128, 128, 0.8);
+            margin-left: .6rem;
+            margin-bottom: 0rem;
+        }
+
+        @media (max-width: 600px) {
+            .dialog-icon {
+                width: 4.5rem;
+                height: 4.5rem;
+                margin-bottom: 0.8rem;
+                margin-top: 0.8rem;
+                margin-left: 0.8rem;
+            }
+            .dialog-msgtitle {
+                font-size: 1.25rem;
+                margin-bottom: 0rem;
+                margin-left: .4rem;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .dialog-icon {
+                width: 4.5rem;
+                height: 4.5rem;
+                margin-bottom: 0.8rem;
+                margin-top: 0.8rem;
+                margin-left: 0rem;
+            }
+            .dialog-msgtitle {
+                display: none;
+            }
+            .dialog-wrap-icon {
+                justify-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 280px) {
+            .dialog-icon {
+                width: 2.4rem;
+                height: 2.4rem;
+                margin-bottom: 0.8rem;
+                margin-top: 0.8rem;
+                margin-left: 0rem;
+            }
+            .dialog-msgtitle {
+                display: none;
+            }
+            .dialog-wrap-icon {
+                justify-items: center;
+                justify-content: center;
+            }
+        }
+
+        .dialog-wrap-icon {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            align-content: center;
+            /* justify-items: left;
+            justify-content: left; */
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            min-height: 130.54px;
+            max-height: 130.54px;
+            padding: 0;
+        }
+
+        .dialog-div {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            width: 40%;
+            max-width: 40%;
+            max-height: 75%;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* cho Safari */
+            box-shadow: 0 0 1rem rgba(188, 188, 188, 0.386);
+        }
+
+        .dialog-div::-webkit-scrollbar {
+            width: 7.6px;              /* độ rộng thanh cuộn */
+            transition: all .23s ease;
+        }
+
+        .dialog-div::-webkit-scrollbar-track {
+            background: transparent; /* nền track */
+        }
+
+        .dialog-div::-webkit-scrollbar-thumb {
+            background: rgba(120, 120, 120, 0.463); /* màu của thanh cuộn */
+            border-radius: 999px;
+        }
+
+        .dialog-div::-webkit-scrollbar-thumb:hover {
+            background: rgba(121, 121, 121, 0.854); /* màu của thanh cuộn khi hover */
+        }
+
+        .dialog-box {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: black;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.87);
+            z-index: 9999999;
+        }
+
+        .dialog-wrap-text {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            text-align: left;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            width: 100%;
+            height: auto;
+            border-top: 1px dashed rgba(49, 49, 49, 0.701);
+            padding: 1.5rem;
+        }
+
+        .dialog-wrap-text::-webkit-scrollbar {
+            width: 7.6px;              /* độ rộng thanh cuộn */
+            transition: all .23s ease;
+        }
+
+        .dialog-wrap-text::-webkit-scrollbar-track {
+            background: transparent; /* nền track */
+        }
+
+        .dialog-wrap-text::-webkit-scrollbar-thumb {
+            background: rgba(120, 120, 120, 0.463); /* màu của thanh cuộn */
+            border-radius: 999px;
+        }
+
+        .dialog-wrap-text::-webkit-scrollbar-thumb:hover {
+            background: rgba(121, 121, 121, 0.854); /* màu của thanh cuộn khi hover */
+        }
+
+        .butn-close-dialog-info {
+            position:absolute;
+            top: 1.4rem;
+            right: 1.4rem;
+
+            width: clamp(36px, 2.3rem, 52px);
+            height: clamp(36px, 2.3rem, 52px);
+
+            display:grid;
+            place-items:center;
+            border-radius:999px;
+            background: rgba(255,255,255,0.9);
+            border:1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+            cursor:pointer;
+
+            transition: all .2s ease;
+        }
+
+        .butn-close-dialog-info svg {
+            width: 65%;
+            height: 65%;
+            stroke:#111;
+            stroke-width:2.2;
+            stroke-linecap:round;
+            stroke-linejoin:round;
+            fill:none;
+            pointer-events:none;
+        }
+
+        .butn-close-dialog-info:hover {
+            background:#f4dddd;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.16);
+        }
+
+        .butn-close-dialog-info:active {
+            background:#ed8080;
+            transform: scale(0.95);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+        }
+
+        .butn-close-dialog-info:focus-visible {
+            outline:2px solid #f16363;
+            outline-offset:3px;
+        }
+
         .spinner-rt {
             width: 5rem;
             height: 5rem;
             border: var(--spin-size-1) solid transparent;
-            border-top: var(--spin-size-1) solid rgba(255, 255, 255, 0.9);
-            border-bottom: var(--spin-size-1) solid rgba(255, 255, 255, 0.9);
+            border-top: var(--spin-size-1) solid rgba(228, 228, 228, 0.9);
+            border-bottom: var(--spin-size-1) solid rgba(228, 228, 228, 0.9);
             border-radius: 50%;
             display: inline-flex;
             margin-bottom: 1.3rem;
@@ -358,6 +587,40 @@
             64% { background-color: #faeebef7; font-weight: bold; color: #d97706;}
             80% { background-color: #ffd630; font-weight: bolder; color: #b45309;}
             100% { background-color: #fff0b2f7; font-weight: bold; color: #d97706;}
+        }
+
+        @keyframes highlightErr {
+            0% { background-color: #ffcdcdf7; font-weight: bold; color: #675a4c; }
+            16% { background-color: #ff6430; font-weight: bolder; color: #513434;}
+            32% { background-color: #ffcdcdf7; font-weight: bold; color: #675a4c;}
+            48% { background-color: #ff6430; font-weight: bolder; color: #513434;}
+            64% { background-color: #ffcdcdf7; font-weight: bold; color: #675a4c;}
+            80% { background-color: #ff6430; font-weight: bolder; color: #513434;}
+            100% { background-color: #ff814bf7; font-weight: bold; color: #483f36;}
+        }
+
+        .errorLink {
+            position: relative;
+            inset: 0;
+            text-align: left;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background-color: transparent;
+            padding: 0.1rem 0.6rem;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.25rem;
+            border: none;
+            transition: all .23s ease;
+        }
+
+        .errorLink:hover {
+            background-color: rgba(255, 191, 170, 0.751);
+        }
+
+        .errorLink:active {
+            background-color: rgba(234, 209, 68, 0.893);
         }
     </style>
     {% block extra_head %}{% endblock %}
