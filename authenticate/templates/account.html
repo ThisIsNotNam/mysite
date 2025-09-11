@@ -2,70 +2,70 @@
 {% block title %}{{ profileUser.username }}'s Profile{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <h2 class="mb-4">@{{ profileUser.username }}'s Profile</h2>
+<div class="container py-4 anim-l-1">
+    <h2 class="mb-4 all-l-ani-1">@{{ profileUser.username }}'s Profile</h2>
 
-    <div class="card mb-4">
-        <div class="card-body">
+    <div class="card mb-4 all-l-ani-1">
+        <div class="card-body all-l-ani-1">
 
-            <p class="card-text mb-1"><strong>Email:</strong>
+            <p class="card-text mb-1 all-l-ani-1"><strong>Email:</strong>
                 {% if profileUser.email %}
                     {{ profileUser.email }}
                 {% else %}
-                    <span class="text-muted">Not set</span>
+                    <span class="text-muted all-l-ani-1">Not set</span>
                 {% endif %}
             </p>
 
-            <p class="card-text mb-1"><strong>Joined on:</strong> {{ profileUser.date_joined|date:"F j, Y" }}</p>
+            <p class="card-text mb-1 all-l-ani-1"><strong>Joined on:</strong> {{ profileUser.date_joined|date:"F j, Y" }}</p>
 
             {% if user == profileUser %}
-            <div class="mt-3">
+            <div class="mt-3 all-l-ani-1">
                 <!-- <a href="#" class="btn btn-sm btn-outline-primary">Edit Profile</a> -->
-                <a href="{% url 'password_change' %}" class="btn btn-sm btn-outline-secondary">Change Password</a>
+                <a href="{% url 'password_change' %}" class="all-l-ani-1 btn btn-sm btn-outline-secondary">Change Password</a>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <h4 class="mb-3">{{ profileUser.username }}'s Posts</h4>
+    <h4 class="mb-3 all-l-ani-1">{{ profileUser.username }}'s Posts</h4>
     {% if posts %}
-        <div class="list-group" id="posts-container">
+        <div class="list-group all-l-ani-1" id="posts-container">
             {% for post in posts %}
-                <div class="list-group-item position-relative">
+                <div class="list-group-item position-relative hover-anim-2 all-l-ani-1">
 <!--------------------------------------------------------------------------------------------------->
 <!-- Delete Button -->
  
                 {% if request.user == post.author or request.user.is_staff %}
                     <form method="post" action="/posts/{{ post.id }}/delete/"
-                          class="position-absolute top-0 end-0 m-2"
+                          class="position-absolute top-0 end-0 m-2 all-l-ani-1"
                           onsubmit="return confirm('Are you sure you want to delete this post?');">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                        <button type="submit" class="all-l-ani-1 btn btn-sm btn-outline-danger" title="Delete">
                             <i class="bi bi-trash"></i>
                         </button>
                     </form>
                 {% endif %}
 <!--------------------------------------------------------------------------------------------------->
-                    <h5 class="mb-1">{{ post.title }}</h5>
+                    <h5 class="mb-1 all-l-ani-1">{{ post.title }}</h5>
 
-                    <small class="text-muted">Posted by @{{ post.author }} on {{ post.date|date:"F j, Y, g:i a" }}</small>
+                    <small class="text-muted all-l-ani-1">Posted by @{{ post.author }} on {{ post.date|date:"F j, Y, g:i a" }}</small>
 <!--------------------------------------------------------------------------------------------------->
-                    <div class="post-body post-body-clamp">
+                    <div class="post-body post-body-clamp all-l-ani-1">
                     {{ post.body }}
                     </div>
-                    <a class="see-more-text link-secondary text-decoration-underline" href="#">See more...</a>
+                    <a class="see-more-text link-secondary text-decoration-underline all-l-ani-1" href="#">See more...</a>
 <!--------------------------------------------------------------------------------------------------->
 <!--vote options-->
-                    <div class="d-flex align-items-center mt-4" data-post-id="{{ post.id }}">
+                    <div class="d-flex align-items-center mt-4 all-l-ani-1" data-post-id="{{ post.id }}">
                         <button
-                            class="btn btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
-                            👍 <span class="upvote-count">{{ post.get_upvotes }}</span>
+                            class="btn all-l-ani-1 btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
+                            👍 <span class="upvote-count all-l-ani-1">{{ post.get_upvotes }}</span>
                         </button>
 
                         <button
-                            class="btn btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} downvote-btn">
-                            👎 <span class="downvote-count">{{ post.get_downvotes }}</span>
+                            class="btn all-l-ani-1 btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} downvote-btn">
+                            👎 <span class="downvote-count all-l-ani-1">{{ post.get_downvotes }}</span>
                         </button>
                     </div>
 
@@ -73,7 +73,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <div class="alert alert-info">
+        <div class="alert alert-info hover-anim-2 all-l-ani-1">
             {% if user == profileUser %}
                 You haven't posted anything yet.
             {% else %}

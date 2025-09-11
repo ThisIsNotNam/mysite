@@ -12,6 +12,10 @@
     <!-- Bootstrap 5 CSS -->
     <link  id="bootstrap-css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        :root {
+        --spin-size-1: .6rem;
+        }
+
         .post-body-clamp {
         display: -webkit-box;
         -webkit-line-clamp: 5;
@@ -34,21 +38,589 @@
         }
         /* Lock navbar height to prevent jump when toggling dark mode*/
         .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
         min-height: 56px;
         padding-top: 0.5rem !important;
         padding-bottom: 0.5rem !important;
+        /* animation: slideIn 1s ease; */
+        z-index: 1000;
+        }
+
+        .padding-top-navbar {
+        padding-top: 4.6rem;
+        }
+
+        @keyframes slideIn {
+        0% { opacity: 0; transform: translateY(-7rem); }
+        100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-3px); }
+        to { opacity: 1; transform: translateY(0);}
+        }
+
+        @keyframes fadeIn1 {
+        from { opacity: 0; }
+        to { opacity: 1; }
+        }
+
+        @keyframes fadeOut1 {
+        from { opacity: 1; }
+        to { opacity: 0; }
         }
 
         /* Normalize theme toggle button size */
         #themeToggleBtn {
         padding: 0.375rem 0.75rem;
+        margin-top: 0.25rem;
         border: 1px solid currentColor;
+        transition: all 0.3s ease;
+        }
+
+        #themeToggleBtn:active {
+        transform: translateY(1.3px) scale(0.99);
         }
 
         #themeToggleBtn i {
         width: 1em;
         text-align: center;
         display: inline-block;
+        }
+
+        #badge-warn-1 {
+        display: inline-flex;
+        align-items: center;
+        justify-content: left;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        }
+
+        #text-warn-1 {
+        transition: opacity 0.3s ease;
+        white-space: nowrap;
+        margin-left: 0.3rem;
+        }
+
+        .nav-item-link {
+        position: relative;
+        overflow: hidden;
+        margin-right: 0.5rem;
+        border-radius: 0.25rem;
+        transition: all .23s ease;
+        }
+
+        .nav-item-link:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 5px rgba(147, 147, 147, 0.15);
+        background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item-link:active {
+        box-shadow: 0 .2px .24px rgba(0, 0, 0, 0.2);
+        transform: translateY(0rem) scale(0.99);
+        background-color: rgba(255, 255, 255, 0.2);
+        }
+
+		.nav-item-link-regis {
+        position: relative;
+        overflow: hidden;
+		border-radius: 0.25rem;
+        margin-right: 0.5rem;
+        transition: all .23s ease;
+        }
+
+        .nav-item-link-regis:hover {
+        transform: translateY(-1px);
+        }
+
+        .nav-item-link-regis:active {
+        transform: translateY(0rem) scale(0.99);
+        }
+
+        .logout-link:hover {
+        box-shadow: 0 0 5px rgba(196, 31, 42, 0.6);
+        background-color: rgba(196, 31, 42, 0.3);
+        }
+
+        .logout-link:active {
+        background-color: rgba(196, 31, 42, 0.4);
+        box-shadow: 0 .2px .24px rgba(196, 31, 42, 0.6);
+        }
+
+        .login-link:hover {
+        box-shadow: 0 0 5px rgba(55, 138, 240, 0.6);
+        background-color: rgba(55, 138, 240, 0.3);
+        }
+
+        .login-link:active {
+        background-color: rgba(55, 138, 240, 0.4);
+        box-shadow: 0 .2px .24px rgba(55, 138, 240, 0.6);
+        }
+
+        .signup-link:hover {
+        box-shadow: 0 0 5px rgba(141, 240, 55, 0.6);
+        background-color: rgba(141, 240, 55, 0.3);
+        }
+
+        .signup-link:active {
+        background-color: rgba(141, 240, 55, 0.4);
+        box-shadow: 0 .2px .24px rgba(141, 240, 55, 0.6);
+        }
+
+        .border-reg-div {
+        border-right: 1px solid rgba(255, 255, 255, 0.4);
+        border-top: 1px solid rgba(255, 255, 255, 0.4);
+        margin-right: .5rem;
+        margin-top: .5rem;
+        margin-bottom: .5rem;
+        }
+
+        .nav-link {
+        padding: 0.3rem 0.75rem;
+        }
+
+        .collapsed {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-toggler {
+            transition: all .21s ease;
+        }
+
+        .show {
+            animation: fadeIn 1s ease;
+        }
+
+        .feature-card-hover {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all .23s ease;
+        }
+
+        .feature-card-hover:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .ani-1 {
+            animation: fadeIn 1s ease;
+        }
+
+        .ani-2 {
+            animation: fadeIn 1.5s ease;
+        }
+
+        .ani-3 {
+            animation: fadeIn 2s ease;
+        }
+
+        .ani-c-1 {
+            animation: slideIn1 0.9s ease;
+        }
+
+        .ani-c-2 {
+            animation: slideIn1 1.2s ease;
+        }
+
+        .ani-c-3 {
+            animation: slideIn1 1.5s ease;
+        }
+
+        @keyframes slideIn1 {
+            0% { opacity: 0; transform: translateY(3rem); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .dialog-glow {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(89, 89, 89, 0.8);
+            z-index: 999999;
+        }
+
+        .dialog-icon {
+            width: 7rem;
+            height: 7rem;
+            display: inline-flex;
+            margin-bottom: 1.3rem;
+            margin-top: 1.3rem;
+            margin-left: 1.3rem;
+        }
+
+        .dialog-string {
+            font-family: Consolas, "Courier New", Courier, monospace;
+            font-size: 1.25rem;
+            display: block;
+            position: relative;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+            align-items: center;
+            justify-content: center;
+            overflow-wrap: anywhere;
+            word-wrap: break-all;
+            white-space: normal;
+            hyphens: auto;
+        }
+
+        .dialog-msgtitle {
+            font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-size: 1.5rem;
+            font-weight: bold;
+            white-space: nowrap;
+            align-self: center;
+            align-items: center;
+            align-content: center;
+            text-shadow: 0 0 1.3rem rgba(128, 128, 128, 0.8);
+            margin-left: .6rem;
+            margin-bottom: 0rem;
+        }
+
+        @media (max-width: 600px) {
+            .dialog-icon {
+                width: 4.5rem;
+                height: 4.5rem;
+                margin-bottom: 0.8rem;
+                margin-top: 0.8rem;
+                margin-left: 0.8rem;
+            }
+            .dialog-msgtitle {
+                font-size: 1.25rem;
+                margin-bottom: 0rem;
+                margin-left: .4rem;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .dialog-icon {
+                width: 4.5rem;
+                height: 4.5rem;
+                margin-bottom: 0.8rem;
+                margin-top: 0.8rem;
+                margin-left: 0rem;
+            }
+            .dialog-msgtitle {
+                display: none;
+            }
+            .dialog-wrap-icon {
+                justify-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 280px) {
+            .dialog-icon {
+                width: 2.4rem;
+                height: 2.4rem;
+                margin-bottom: 0.8rem;
+                margin-top: 0.8rem;
+                margin-left: 0rem;
+            }
+            .dialog-msgtitle {
+                display: none;
+            }
+            .dialog-wrap-icon {
+                justify-items: center;
+                justify-content: center;
+            }
+        }
+
+        .dialog-wrap-icon {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            align-content: center;
+            /* justify-items: left;
+            justify-content: left; */
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            min-height: 130.54px;
+            max-height: 130.54px;
+            padding: 0;
+        }
+
+        .dialog-div {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            width: 40%;
+            max-width: 40%;
+            max-height: 75%;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* cho Safari */
+            box-shadow: 0 0 1rem rgba(188, 188, 188, 0.386);
+        }
+
+        .dialog-div::-webkit-scrollbar {
+            width: 7.6px;              /* độ rộng thanh cuộn */
+            transition: all .23s ease;
+        }
+
+        .dialog-div::-webkit-scrollbar-track {
+            background: transparent; /* nền track */
+        }
+
+        .dialog-div::-webkit-scrollbar-thumb {
+            background: rgba(120, 120, 120, 0.463); /* màu của thanh cuộn */
+            border-radius: 999px;
+        }
+
+        .dialog-div::-webkit-scrollbar-thumb:hover {
+            background: rgba(121, 121, 121, 0.854); /* màu của thanh cuộn khi hover */
+        }
+
+        .dialog-box {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: black;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.87);
+            z-index: 9999999;
+        }
+
+        .dialog-wrap-text {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            text-align: left;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            width: 100%;
+            height: auto;
+            border-top: 1px dashed rgba(49, 49, 49, 0.701);
+            padding: 1.5rem;
+        }
+
+        .dialog-wrap-text::-webkit-scrollbar {
+            width: 7.6px;              /* độ rộng thanh cuộn */
+            transition: all .23s ease;
+        }
+
+        .dialog-wrap-text::-webkit-scrollbar-track {
+            background: transparent; /* nền track */
+        }
+
+        .dialog-wrap-text::-webkit-scrollbar-thumb {
+            background: rgba(120, 120, 120, 0.463); /* màu của thanh cuộn */
+            border-radius: 999px;
+        }
+
+        .dialog-wrap-text::-webkit-scrollbar-thumb:hover {
+            background: rgba(121, 121, 121, 0.854); /* màu của thanh cuộn khi hover */
+        }
+
+        .butn-close-dialog-info {
+            position:absolute;
+            top: 1.4rem;
+            right: 1.4rem;
+
+            width: clamp(36px, 2.3rem, 52px);
+            height: clamp(36px, 2.3rem, 52px);
+
+            display:grid;
+            place-items:center;
+            border-radius:999px;
+            background: rgba(255,255,255,0.9);
+            border:1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+            cursor:pointer;
+
+            transition: all .2s ease;
+        }
+
+        .butn-close-dialog-info svg {
+            width: 65%;
+            height: 65%;
+            stroke:#111;
+            stroke-width:2.2;
+            stroke-linecap:round;
+            stroke-linejoin:round;
+            fill:none;
+            pointer-events:none;
+        }
+
+        .butn-close-dialog-info:hover {
+            background:#f4dddd;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.16);
+        }
+
+        .butn-close-dialog-info:active {
+            background:#ed8080;
+            transform: scale(0.95);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+        }
+
+        .butn-close-dialog-info:focus-visible {
+            outline:2px solid #f16363;
+            outline-offset:3px;
+        }
+
+        .spinner-rt {
+            width: 5rem;
+            height: 5rem;
+            border: var(--spin-size-1) solid transparent;
+            border-top: var(--spin-size-1) solid rgba(228, 228, 228, 0.9);
+            border-bottom: var(--spin-size-1) solid rgba(228, 228, 228, 0.9);
+            border-radius: 50%;
+            display: inline-flex;
+            margin-bottom: 1.3rem;
+            animation: spin 3.2s ease infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            28% { transform: rotate(720deg); }
+            50% { transform: rotate(1020deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        .button-login-signup {
+            text-decoration: none;
+            color: white;
+            background-color: #0d6efd;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .anim-l-1 {
+            animation: fadeIn .8s ease;
+        }
+
+        .all-l-ani-1 {
+            transition: all .23s ease;
+        }
+
+        .hover-anim-1 {
+            box-shadow: 0 0 .123rem rgba(147, 147, 147, 0.219);
+            transition: all .23s ease;
+        }
+
+        .hover-anim-1:hover {
+            box-shadow: 0 0 1rem rgba(147, 147, 147, 0.3);
+            background-color: rgba(136, 136, 136, 0.3);
+        }
+
+        .hover-anim-1:active {
+            box-shadow: 0 .2px .24px rgba(0, 0, 0, 0.2);
+            transform: translateY(0rem) scale(0.997);
+            background-color: rgba(136, 136, 136, 0.4);
+        }
+
+        .hover-anim-2 {
+            transition: all .23s ease;
+            animation: fadeIn 2s ease;
+        }
+
+        .hover-anim-2:hover {
+            box-shadow: 0 0 .7rem rgba(147, 147, 147, 0.3);
+        }
+
+        .title-tkb-1 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            /* border: 1px solid rgba(0, 0, 0, 1); */
+            width: 100%;
+            padding: 0;
+            height: 3rem;
+        }
+
+        @keyframes slideIn2 {
+            from { transform: translateY(-3rem); }
+            to { transform: translateY(0rem); }
+        }
+
+        #title-tkb {
+            font-size: 2rem;
+            white-space: nowrap;
+            transform: all .23s ease;
+            animation: slideIn2 .5s ease;
+        }
+
+        @media (max-width: 770px) {
+            #title-tkb {
+                font-size: 1.5rem;
+            }
+        }
+        @media (max-width: 530px) {
+            #title-tkb {
+                font-size: 1rem;
+            }
+        }
+
+        @keyframes highlightDay {
+            0% { background-color: #fff5cdf7; font-weight: bold; color: #d97706; }
+            16% { background-color: #ffd630; font-weight: bolder; color: #b45309;}
+            32% { background-color: #faeebef7; font-weight: bold; color: #d97706;}
+            48% { background-color: #ffd630; font-weight: bolder; color: #b45309;}
+            64% { background-color: #faeebef7; font-weight: bold; color: #d97706;}
+            80% { background-color: #ffd630; font-weight: bolder; color: #b45309;}
+            100% { background-color: #fff0b2f7; font-weight: bold; color: #d97706;}
+        }
+
+        @keyframes highlightErr {
+            0% { background-color: #ffcdcdf7; font-weight: bold; color: #675a4c; }
+            16% { background-color: #ff6430; font-weight: bolder; color: #513434;}
+            32% { background-color: #ffcdcdf7; font-weight: bold; color: #675a4c;}
+            48% { background-color: #ff6430; font-weight: bolder; color: #513434;}
+            64% { background-color: #ffcdcdf7; font-weight: bold; color: #675a4c;}
+            80% { background-color: #ff6430; font-weight: bolder; color: #513434;}
+            100% { background-color: #ff814bf7; font-weight: bold; color: #483f36;}
+        }
+
+        .errorLink {
+            position: relative;
+            inset: 0;
+            text-align: left;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background-color: transparent;
+            padding: 0.1rem 0.6rem;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.25rem;
+            border: none;
+            transition: all .23s ease;
+        }
+
+        .errorLink:hover {
+            background-color: rgba(255, 191, 170, 0.751);
+        }
+
+        .errorLink:active {
+            background-color: rgba(234, 209, 68, 0.893);
         }
     </style>
     {% block extra_head %}{% endblock %}
@@ -59,7 +631,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container-fluid">
             <a class="navbar-brand" href="/homepage">Istar</a>
-            <span class="badge bg-warning text-dark ms-2">⚠️ Work in Progress</span>
+            <span class="badge bg-warning text-dark ms-2" id="badge-warn-1">⚠️<span id="text-warn-1"> Work in Progress</span></span>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
                     aria-label="Toggle navigation">
@@ -68,40 +640,56 @@
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                    <li class="nav-item-link">
                         <a class="nav-link" href="/homepage">Home</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item-link">
                         <a class="nav-link" href="/homepage/about">About</a>
                     </li>
+                    <li class="nav-item-link">
+                        <a class="nav-link" href="/tkb">TKB</a>
+                    </li>
                     {% if user.is_authenticated %}
-                        <li class="nav-item">
+                        <li class="nav-item-link">
                             <a class="nav-link" href="/posts">Posts</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item-link">
                             <a class="nav-link" href="/accounts/">Users</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/accounts/{{ request.user.id }}">@{{ user.username }}</a>
+                        <li class="border-reg-div"></li>
+                        <li class="nav-item-link">
+                            <a class="nav-link" href="/accounts/{{ request.user.id }}">Hello, {{ user.username }}!</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item-link-regis logout-link">
                             <form action="/accounts/logout/" method="post" style="display: inline;">
                                 {% csrf_token %}
                                 <button type="submit"
-                                        class="nav-link btn btn-link px-3 py-2"
-                                        style="background: none; border: none;">
+                                        class="nav-link btn btn-link"
+										style="color: #e03d31;">
                                 Logout
                                 </button>
                             </form>
                         </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/accounts/login">Login</a>
+                        <li class="border-reg-div"></li>
+                        <li class="nav-item-link-regis login-link">
+                            <a class="nav-link"
+                               style="color: rgba(55, 138, 240, 0.98);"
+                               href="/accounts/login">
+                            Login
+                            </a>
+                        </li>
+                        <li class="nav-item-link-regis signup-link">
+                            <a class="nav-link"
+                            style="color: rgba(141, 240, 55, .98);"
+                            href="/accounts/signup">
+                            Signup
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
                 <button id="themeToggleBtn" class="btn btn-outline-light btn-sm" onclick="toggleTheme()">
-                    <i class="bi bi-moon"></i>
+                    <i class="bi"></i>
                 </button>
             </div>
         </div>
@@ -121,6 +709,7 @@
 
     <!-- Main Content -->
     <div class="container">
+        <div class="padding-top-navbar"></div>
         {% block content %}
         {% endblock %}
     </div>
@@ -128,6 +717,27 @@
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <script>
+    const alertTitle = document.querySelector('#badge-warn-1');
+    document.addEventListener("DOMContentLoaded", function () {
+        const text = document.getElementById('text-warn-1');
+        text.style.opacity = '0';
+        alertTitle.style.width = "2rem";
+    });
+    alertTitle.addEventListener('mouseenter', function() {
+        const text = document.getElementById('text-warn-1');
+        const iconWarnSize = document.querySelector('#badge-warn-1').querySelector('span');
+        text.style.opacity = '1';
+        // console.log(text.offsetWidth, text.getBoundingClientRect().width);
+        alertTitle.style.width = text.offsetWidth + iconWarnSize.offsetWidth - 57 + 'px'; // + for padding
+    });
+    alertTitle.addEventListener('mouseleave', function() {
+        const text = document.getElementById('text-warn-1');
+        text.style.opacity = '0';
+        alertTitle.style.width = '2rem';
+    });
+    </script>
+
     <script>
     function toggleTheme() {
         const link = document.getElementById("bootstrap-css");
@@ -139,12 +749,19 @@
 
         const nextTheme = isDark ? "light" : "dark";
         localStorage.setItem("theme", nextTheme);
-
-        const icon = document.querySelector("#themeToggleBtn i");
-        if (icon) {
-            icon.className = nextTheme === "dark" ? "bi bi-moon" : "bi bi-sun";
-        }
     }
+
+    setInterval( function() {
+        const icon = document.querySelector("#themeToggleBtn i");
+        const link = document.getElementById("bootstrap-css");
+        const isDark = link.href.includes("darkly");
+
+        if (isDark) {
+            icon.className = "bi bi-moon";
+        } else {
+            icon.className = "bi bi-sun";
+        }
+    }, 200); // Check every 100ms
 
     // Load saved theme on page load
     document.addEventListener("DOMContentLoaded", function () {
