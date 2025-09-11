@@ -10,24 +10,24 @@
 <div class="container mt-4">
 
   <!-- Back button -->
-  <a href="javascript:history.back()" class="btn btn-secondary mb-3">← Back</a>
+  <a href="javascript:history.back()" class="btn btn-secondary mb-3 all-l-ani-1">← Back</a>
 
   <!-- Metadata -->
-  <div class="mb-2 text-muted small">
+  <div class="mb-2 text-muted small anim-l-1">
     Posted by @{{ post.author }} on {{ post.date|date:"F j, Y, g:i a" }}
   </div>
 
   <!-- Combined Title + Body -->
-  <div class="border rounded p-3 mb-4">
+  <div class="border rounded p-3 mb-4 anim-l-1">
     <div class="d-flex justify-content-between align-items-center mb-2">
-      <h1 class="h3 mb-0">{{ post.title }}</h1>
+      <h1 class="h3 mb-0 all-l-ani-1">{{ post.title }}</h1>
       {% if request.user == post.author or request.user.is_staff %}
       <div class="d-flex">
-        <a href="/posts/{{ post.id }}/edit/" class="btn btn-outline-primary me-2">Edit</a>
+        <a href="/posts/{{ post.id }}/edit/" class="btn btn-outline-primary me-2 all-l-ani-1">Edit</a>
         <form method="post" action="/posts/{{ post.id }}/delete/" onsubmit="return confirm('Are you sure you want to delete this post?');">
           {% csrf_token %}
           <input type="hidden" name="next" value="/posts/">
-          <button type="submit" class="btn btn-outline-danger">Delete</button>
+          <button type="submit" class="btn btn-outline-danger all-l-ani-1">Delete</button>
         </form>
       </div>
       {% endif %}
@@ -39,15 +39,15 @@
   </div>
 
   <!-- Voting -->
-  <div class="d-flex align-items-center border rounded p-2" data-post-id="{{ post.id }}">
+  <div class="d-flex align-items-center border rounded p-2 anim-l-1" data-post-id="{{ post.id }}">
     <button
-      class="btn btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
-      👍 <span class="upvote-count">{{ post.upvotes }}</span>
+      class="btn all-l-ani-1 btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
+      👍 <span class="upvote-count all-l-ani-1">{{ post.upvotes }}</span>
     </button>
 
     <button
-      class="btn btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} downvote-btn">
-      👎 <span class="downvote-count">{{ post.downvotes }}</span>
+      class="btn all-l-ani-1 btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} downvote-btn">
+      👎 <span class="downvote-count all-l-ani-1">{{ post.downvotes }}</span>
     </button>
   </div>
 </div>

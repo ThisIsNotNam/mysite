@@ -3,21 +3,70 @@
 {% block title %}TKB - TK6CHT{% endblock %}
 
 {% block content %}
+
 <div class="container my-4">
-  <h2 class="mb-4">Thời Khóa Biểu - Lớp TK6CHT</h2>
+  <div class="dialog-glow">
+    <div class="spinner-rt" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="dialog-text" style="font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;font-size: 1.75rem;text-shadow: 0 0 10px rgba(255, 255, 255, .8);"></div>
+  </div>
+  <div class="title-tkb-1 text-center mb-4 anim-l-1">
+    <h2 class="all-l-ani-1" id="title-tkb">Thời Khoá Biểu - 10 Tin Chuyên Hà Tĩnh</h2>
+  </div>
   
-  <div class="table-responsive">
-    <table class="table table-striped table-bordered table-hover align-middle">
-      <tbody>
+  <div class="table-responsive anim-l-1">
+    <table class="table table-striped table-bordered table-hover align-middle shadow-table all-l-ani-1">
+      <tbody class="all-l-ani-1">
         {% for row in mtx %}
-          <tr>
+          <tr class="all-l-ani-1">
             {% for cell in row %}
-              <td>{{ cell }}</td>
+              {% if forloop.counter == day %}
+                <td class="all-l-ani-1" id="day-match">{{ cell }}</td>
+              {% else %}
+                <td class="all-l-ani-1">{{ cell }}</td>
+              {% endif %}
             {% endfor %}
           </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+  <!-- <p>{{ mtx }}</p> -->
 </div>
+
+<script>
+  const dialogGlow = document.querySelector('.dialog-glow');
+  const dialogText = document.querySelector('.dialog-text');
+  const tkbTitle = document.getElementById('title-tkb');
+  const dayMatch = document.querySelectorAll('#day-match');
+  document.addEventListener('DOMContentLoaded', function() {
+    // Simulate data loading
+    openDialog("Please wait, loading TKB databases...");
+    setTimeout(() => {
+      closeDialog();
+      dayMatch.forEach(el => {
+        // el.style.backgroundColor = '#fffae6'; // Light yellow background
+        // el.style.fontWeight = 'bold'; // Bold text
+        // el.style.color = '#d97706'; // Dark orange text
+        el.style.animation = 'highlightDay 1s ease forwards';
+      });
+    }, 1000); // Simulate a 1.2 second load time
+  });
+
+  function openDialog(textmsg) {
+    dialogText.textContent = textmsg;
+    dialogGlow.style.opacity = '0';
+    dialogGlow.style.display = 'flex';
+    dialogGlow.style.animation = 'fadeIn1 1s forwards';
+  }
+
+  function closeDialog() {
+    dialogGlow.style.animation = 'fadeOut1 .67s forwards';
+    setTimeout(() => {
+      dialogGlow.style.display = 'none';
+    }, 700); // Match the fade-out duration
+  }
+</script>
+
 {% endblock %}
