@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
-from django.db.models import OuterRef, Subquery, Q, Count, CharField, Value
-from django.db.models.functions import Coalesce
+from django.http import JsonResponse, HttpRequest
+from django.db.models import OuterRef, Subquery, Q, Count, CharField
 import json
 from datetime import timedelta
 from django.utils import timezone
@@ -134,5 +133,20 @@ def postsDetail(request, postId):
     post.upvotes=post.get_upvotes()
     post.downvotes=post.get_downvotes()
     post.userVote=post.get_user_vote(request.user)
-
     return render(request, "postDetail.html", {'post': post})
+
+def postEdit(request: HttpRequest, postId):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    post=get_object_or_404(Post, id=postId)
+    if not (request.user==post.author or request.user.is_staff):
+        return redirect('/')
+    if request.method == "POST":
+        form=forms.postCreationForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect(f'/posts/{postId}')
+    else:
+        form=forms.postCreationForm(instance=post)
+
+    return render(request, "editPost.html", {"form": form, "post": post})
