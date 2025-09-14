@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Permission Denied{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-start align-items-center mb-3">
+    <a href="
+        {% if action == 'not-logged-in' %}
+            /homepage/
+        {% else %}
+            /posts/
+        {% endif %}
+    " class="btn btn-secondary ms-auto all-l-ani-1">
+        {% if action == 'not-logged-in' %}
+            ← Back to Home
+        {% else %}
+            ← Back to Post
+        {% endif %}
+    </a>
+</div>
+<div class="alert alert-danger hover-anim-2 all-l-ani-1">
+    <h4 class="alert-heading">Permission Denied</h4>
+    <p class="mb-0">
+        {% if action == 'edit' %}
+            You do not have the necessary permissions to edit post of {{ post.author }}
+        {% elif action == 'delete' %}
+            You do not have the necessary permissions to delete post of {{ post.author }}
+        {% elif action == 'not-logged-in' %}
+            You need to be logged in to perform this action
+        {% else %}
+            You do not have the necessary permissions to perform post of {{ post.author }}
+        {% endif %}
+    </p>
+</div>
+{% if action != 'not-logged-in' %}
+    <div class="alert alert-warning hover-anim-2 all-l-ani-1">
+        <h4 class="alert-heading">What can you do?</h4>
+        <p class="mb-0">> Confirm that this is indeed your post, then reload the page</p>
+        <p class="mb-0">> Try again later</p>
+    </div>
+{% endif %}
+{% endblock %}

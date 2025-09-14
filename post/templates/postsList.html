@@ -39,8 +39,11 @@ My Posts
 <!--------------------------------------------------------------------------------------------------->
 <!-- Delete Button -->
                 {% if request.user == post.author or request.user.is_staff %}
+                    <a href="/posts/{{ post.id }}/edit/" class="btn btn-sm btn-outline-info all-l-ani-1 position-absolute top-0 nth-1 m-2 all-l-ani-1" title="Edit">
+                        <i class="bi bi-pen"></i>
+                    </a>
                     <form method="post" action="/posts/{{ post.id }}/delete/"
-                          class="position-absolute top-0 end-0 m-2 all-l-ani-1"
+                          class="position-absolute top-0 nth-0 m-2 all-l-ani-1"
                           onsubmit="return confirm('Are you sure you want to delete this post?');">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">

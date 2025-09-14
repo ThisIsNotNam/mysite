@@ -14,9 +14,31 @@ def deletePost(request, postId):
             post=get_object_or_404(Post, id=postId)
             if request.user==post.author or request.user.is_staff:
                 post.delete()
+        else:
+            return render(request, "permissionDenied.html", {'action': 'not-logged-in'})
         next=request.POST.get("next", "/posts/")
         return redirect(next)
-    return redirect("/homepage/")
+    post=get_object_or_404(Post, id=postId)
+    return render(request, "permissionDenied.html", {'post': post, 'action': 'delete'})
+
+def editPost(request, postId):
+    if not request.user.is_authenticated:
+        return render(request, "permissionDenied.html", {'action': 'not-logged-in'})
+
+    post = get_object_or_404(Post, id=postId)
+
+    if request.user != post.author and not request.user.is_staff:
+        return render(request, "permissionDenied.html", {'post': post, 'action': 'edit'})
+    
+    if request.method == 'POST':
+        form = forms.postCreationForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect(f"/posts/{postId}/")
+    else:
+        form = forms.postCreationForm(instance=post)
+
+    return render(request, "editPost.html", {'form': form, 'post': post})
 
 def postsList(request):
     if not request.user.is_authenticated:
