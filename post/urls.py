@@ -7,5 +7,6 @@ urlpatterns = [
     path("<int:postId>/", views.postsDetail),
     path("<int:postId>/edit/", views.postEdit),
     path("<int:postId>/delete/", views.deletePost),
+    path("<int:postId>/edit/", views.editPost),
     path("vote/", views.votePost, name='votePost'),
 ]
