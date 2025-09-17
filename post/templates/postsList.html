@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+<!-- {% load static %} -->
+
 {% block title %}
 {% if canShowAll %}
 Posts
@@ -35,7 +37,8 @@ My Posts
     {% if posts %}
         <div class="list-group all-l-ani-1" id="posts-container">
             {% for post in posts %}
-                <div class="list-group-item position-relative post-clickable all-l-ani-1 hover-anim-1" data-href="/posts/{{ post.id }}/" style="cursor: pointer;">
+                <!-- console.log("{{ post }}"); -->
+                <div class="lazy list-group-item position-relative post-clickable all-l-ani-1 hover-anim-1" data-href="/posts/{{ post.id }}/" style="cursor: pointer;">
 <!--------------------------------------------------------------------------------------------------->
 <!-- Delete Button -->
                 {% if request.user == post.author or request.user.is_staff %}
@@ -112,8 +115,8 @@ My Posts
 
 {% endblock %}
 
-
 {% block extra_scripts %}
+<!-- <script src="{% static 'lazyloaddemo.js' %}"></script> -->
 <script>
 //Voting logics
 document.addEventListener('DOMContentLoaded', function () {
