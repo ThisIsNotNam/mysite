@@ -20,7 +20,9 @@
   <!-- Combined Title + Body -->
   <div class="border rounded p-3 mb-4 anim-l-1">
     <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="wr-w-1">
       <h1 class="h3 mb-0 all-l-ani-1">{{ post.title }}</h1>
+      </div>
       {% if request.user == post.author or request.user.is_staff %}
       <div class="d-flex">
         <a href="/posts/{{ post.id }}/edit/" class="btn btn-outline-primary me-2 all-l-ani-1">Edit</a>

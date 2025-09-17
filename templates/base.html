@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,12 +10,13 @@
 
     <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
-
+    
     <!-- Bootstrap 5 CSS -->
     <link  id="bootstrap-css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
         --spin-size-1: .6rem;
+        --blur-link-all: 15px;
         }
 
         .post-body-clamp {
@@ -117,14 +120,16 @@
 
         .nav-item-link:hover {
         transform: translateY(-1px);
-        box-shadow: 0 0 5px rgba(147, 147, 147, 0.15);
-        background-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 10px rgba(141, 136, 136, 0.498);
+        background-color: rgba(255, 255, 255, 0.258);
+        backdrop-filter: blur(var(--blur-link-all));
         }
 
         .nav-item-link:active {
-        box-shadow: 0 .2px .24px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 .2px .5px rgba(0, 0, 0, 0.2);
         transform: translateY(0rem) scale(0.99);
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.374);
+        backdrop-filter: blur(var(--blur-link-all));
         }
 
 		.nav-item-link-regis {
@@ -136,41 +141,78 @@
         }
 
         .nav-item-link-regis:hover {
+        box-shadow: 0 0 10px rgba(141, 136, 136, 0.498);
         transform: translateY(-1px);
+        backdrop-filter: blur(var(--blur-link-all));
         }
 
         .nav-item-link-regis:active {
+        box-shadow: 0 .2px .5px rgba(0, 0, 0, 0.2);
         transform: translateY(0rem) scale(0.99);
+        backdrop-filter: blur(var(--blur-link-all));
+        }
+        
+        .background-filter-1 {
+            display: block;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: none;
+            background-image: url("{% static 'lightHomepage.jpg' %}");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            transition: all .57s ease;
+            z-index: -1;
+        }
+
+        .background-filter-2 {
+            display: block;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            filter: blur(10px);
+            border-radius: none;
+            background-image: url("{% static 'lightAbout.jpg' %}");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            transition: all .57s ease;
+            z-index: -1;
+        }
+
+        .wr-w-1 {
+            width: 100%;
+            word-break: break-all;
+            overflow: hidden;
         }
 
         .logout-link:hover {
-        box-shadow: 0 0 5px rgba(196, 31, 42, 0.6);
-        background-color: rgba(196, 31, 42, 0.3);
+        background-color: rgba(196, 31, 42, 0.258);
         }
 
         .logout-link:active {
-        background-color: rgba(196, 31, 42, 0.4);
-        box-shadow: 0 .2px .24px rgba(196, 31, 42, 0.6);
+        background-color: rgba(196, 31, 42, 0.498);
         }
 
         .login-link:hover {
-        box-shadow: 0 0 5px rgba(55, 138, 240, 0.6);
-        background-color: rgba(55, 138, 240, 0.3);
+        background-color: rgba(55, 138, 240, 0.258);
         }
 
         .login-link:active {
-        background-color: rgba(55, 138, 240, 0.4);
-        box-shadow: 0 .2px .24px rgba(55, 138, 240, 0.6);
+        background-color: rgba(55, 138, 240, 0.498);
         }
 
         .signup-link:hover {
-        box-shadow: 0 0 5px rgba(141, 240, 55, 0.6);
-        background-color: rgba(141, 240, 55, 0.3);
+        background-color: rgba(141, 240, 55, 0.258);
         }
 
         .signup-link:active {
-        background-color: rgba(141, 240, 55, 0.4);
-        box-shadow: 0 .2px .24px rgba(141, 240, 55, 0.6);
+        background-color: rgba(141, 240, 55, 0.498);
         }
 
         .border-reg-div {
@@ -494,6 +536,39 @@
             animation: spin 3.2s ease infinite;
         }
 
+        /* .bg-glass-custom {
+            background: rgba(116, 116, 116, 0.708);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #909090;
+        } */
+
+        .bg-glass-custom {
+            --outer-shadow-blur: 20px;
+            overflow: hidden;
+            /* isolation: isolate; */
+            background: rgba(60, 60, 60, 0.58);
+            border-bottom: 1.2px solid #888888;
+        }
+
+        .bg-glass-custom::after {
+            --frost-blur: 8px;
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            backdrop-filter: blur(var(--frost-blur));
+            filter: url(#glass-distortion);
+            isolation: isolate;
+            -webkit-backdrop-filter: blur(var(--frost-blur));
+            -webkit-filter: url("#glass-distortion");
+        }
+
+        .bg-glass-custom-1 {
+            overflow: hidden;
+            background: rgba(199, 199, 199, 0.199) !important;
+            backdrop-filter: blur(1rem);
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             28% { transform: rotate(720deg); }
@@ -637,7 +712,7 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-glass-custom mb-4">
         <div class="container-fluid">
             <a class="navbar-brand" href="/homepage">Istar</a>
             <span class="badge bg-warning text-dark ms-2" id="badge-warn-1">⚠️<span id="text-warn-1"> Work in Progress</span></span>
@@ -674,7 +749,10 @@
                                 {% csrf_token %}
                                 <button type="submit"
                                         class="nav-link btn btn-link"
-										style="color: #e03d31;">
+										style="
+                                                color: #e03d31;
+                                                text-shadow: 0 0 8px rgb(149, 99, 99)
+                                        ">
                                 Logout
                                 </button>
                             </form>
@@ -683,14 +761,20 @@
                         <li class="border-reg-div"></li>
                         <li class="nav-item-link-regis login-link">
                             <a class="nav-link"
-                               style="color: rgba(55, 138, 240, 0.98);"
+                               style="
+                                    color: rgba(0, 119, 255, 0.98);
+                                    text-shadow: 0 0 8px rgb(99, 116, 149)
+                               "
                                href="/accounts/login">
                             Login
                             </a>
                         </li>
                         <li class="nav-item-link-regis signup-link">
                             <a class="nav-link"
-                            style="color: rgba(141, 240, 55, .98);"
+                            style="
+                                    color: rgba(119, 255, 0, 0.98);
+                                    text-shadow: 0 0 8px rgb(118, 149, 99)
+                            "
                             href="/accounts/signup">
                             Signup
                             </a>
@@ -723,6 +807,17 @@
         {% endblock %}
     </div>
 
+    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute; overflow:hidden">
+        <defs>
+            <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="2" seed="92" result="noise" />
+                <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
+                <feDisplacementMap in="SourceGraphic" in2="blurred" scale="106" xChannelSelector="R"
+                    yChannelSelector="G" />
+            </filter>
+        </defs>
+    </svg>
+
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -748,6 +843,9 @@
     </script>
 
     <script>
+    const backgroundImg = document.querySelector(".background-filter-1");
+    const backgroundImg1 = document.querySelector(".background-filter-2");
+
     function toggleTheme() {
         const link = document.getElementById("bootstrap-css");
         const isDark = link.href.includes("darkly");
@@ -764,6 +862,26 @@
         const icon = document.querySelector("#themeToggleBtn i");
         const link = document.getElementById("bootstrap-css");
         const isDark = link.href.includes("darkly");
+
+        if (backgroundImg) {
+            backgroundImg.style.backgroundImage = `
+                url("${
+                isDark
+                ? "{% static 'darkHomepage.jpg' %}"
+                : "{% static 'lightHomepage.jpg' %}"
+                }")
+            `;
+        }
+
+        if (backgroundImg1) {
+            backgroundImg1.style.backgroundImage = `
+                url("${
+                isDark
+                ? "{% static 'darkAbout.jpg' %}"
+                : "{% static 'lightAbout.jpg' %}"
+                }")
+            `;
+        }
 
         if (isDark) {
             icon.className = "bi bi-moon";
