@@ -5,34 +5,37 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-
-<div class="container mt-4">
+<div class="container mt-4" id="container-comments">
 
   <!-- Back button -->
   <a href="javascript:history.back()" class="btn btn-secondary mb-3 all-l-ani-1">← Back</a>
 
   <!-- Metadata -->
+  <div class="post-title-1 anim-l-1">
+    {{ post.date|date:"F j, Y, g:i a" }}
+  </div>
   <div class="mb-2 text-muted small anim-l-1">
-    Posted by @{{ post.author }} on {{ post.date|date:"F j, Y, g:i a" }}
+    Posted by @{{ post.author }}
   </div>
 
   <!-- Combined Title + Body -->
+  {% if request.user == post.author or request.user.is_staff %}
+  <div class="border rounded p-rel-1 anim-l-1" id="btns-action">
+    <div class="a-f-1">
+      <a href="/posts/{{ post.id }}/edit/" class="btn btn-outline-primary me-2 all-l-ani-1">Edit</a>
+      <form method="post" action="/posts/{{ post.id }}/delete/" onsubmit="return confirm('Are you sure you want to delete this post?');">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="/posts/">
+        <button type="submit" class="btn btn-outline-danger all-l-ani-1">Delete</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
   <div class="border rounded p-3 mb-4 anim-l-1">
     <div class="d-flex justify-content-between align-items-center mb-2">
       <div class="wr-w-1">
       <h1 class="h3 mb-0 all-l-ani-1">{{ post.title }}</h1>
       </div>
-      {% if request.user == post.author or request.user.is_staff %}
-      <div class="d-flex">
-        <a href="/posts/{{ post.id }}/edit/" class="btn btn-outline-primary me-2 all-l-ani-1">Edit</a>
-        <form method="post" action="/posts/{{ post.id }}/delete/" onsubmit="return confirm('Are you sure you want to delete this post?');">
-          {% csrf_token %}
-          <input type="hidden" name="next" value="/posts/">
-          <button type="submit" class="btn btn-outline-danger all-l-ani-1">Delete</button>
-        </form>
-      </div>
-      {% endif %}
     </div>
 
     <div class="fs-5">
@@ -105,6 +108,32 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(err => console.error('Request failed:', err));
     });
+  });
+
+  const actionBtn = document.getElementById("btns-action");
+  const rootContainer = document.getElementById("container-comments");
+  var anirunning = false;
+  rootContainer.addEventListener('mouseenter', function(e) {
+    if (actionBtn && !anirunning) {
+      anirunning = true;
+      actionBtn.style.opacity = "0";
+      actionBtn.style.display = "flex";
+      actionBtn.style.animation = "fadeIn-cmedit .6s ease forwards";
+      setTimeout(() => {
+        anirunning = false;
+      }, 610);
+    }
+  });
+  rootContainer.addEventListener('mouseleave', function(e) {
+    if (actionBtn && !anirunning) {
+      anirunning = true;
+      actionBtn.style.opacity = "1";
+      actionBtn.style.animation = "fadeOut-cmedit .6s ease forwards";
+      setTimeout(() => {
+        actionBtn.style.display = "none";
+        anirunning = false;
+      }, 610);
+    }
   });
 });
 </script>

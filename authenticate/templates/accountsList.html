@@ -13,16 +13,109 @@ Users
         {% endif %}
     </div>
 
-    {% if users %}
+    {% if page_obj %}
+        <!-- Pagination controls header -->
+        <!--
+            @Copyright (C) By DJANGO_BLOOM_PROJECTS @ThaiMinhHoang
+            All rights reserved
+        -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-3 all-l-ani-1">
+                {# Nút First #}
+                <li class="page-item all-l-ani-1 {% if not page_obj.number > 1 %}disabled{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.number > 1 %}?page=1{% else %}#{% endif %}">
+                        <!-- First -->
+                        <svg class="icon icon-first all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 6v12"/>            <!-- vertical bar -->
+                                <path d="M18 7L11 12l7 5"/>    <!-- double chevron pointing left -->
+                            </g>
+                        </svg>
+                    </a>
+                </li>
+
+                {# Nút Previous #}
+                <li class="page-item all-l-ani-1 {% if not page_obj.has_previous %}disabled{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}">
+                        <!-- Previous -->
+                        <svg class="icon icon-prev all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 6L9 12l6 6"/>
+                            </g>
+                        </svg>
+                    </a>
+                </li>
+
+                {# Trang 1 #}
+                {% if page_obj.number > 3 %}
+                    <li class="page-item all-l-ani-1">
+                        <a class="page-link all-l-ani-1" href="?page=1">1</a>
+                    </li>
+                    {% if page_obj.number > 4 %}
+                        <li class="page-item disabled all-l-ani-1"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endif %}
+
+                {# Các trang xung quanh trang hiện tại #}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                        {% if num == page_obj.number %}
+                        <li class="page-item active all-l-ani-1"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                        <li class="page-item all-l-ani-1">
+                            <a class="page-link all-l-ani-1" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {# Trang cuối #}
+                {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                        <li class="page-item disabled all-l-ani-1"><span class="page-link all-l-ani-1">…</span></li>
+                    {% endif %}
+                    <li class="page-item all-l-ani-1">
+                        <a class="page-link all-l-ani-1" href="?page={{ page_obj.paginator.num_pages }}">
+                        {{ page_obj.paginator.num_pages }}
+                        </a>
+                    </li>
+                {% endif %}
+
+                {# Nút Next #}
+                <li class="page-item all-l-ani-1 {% if not page_obj.has_next %}disabled{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}">
+                        <!-- Next -->
+                        <svg class="icon icon-next all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 6l6 6-6 6"/>
+                            </g>
+                        </svg>
+                    </a>
+                </li>
+
+                {# Nút Last #}
+                <li class="page-item all-l-ani-1 {% if not page_obj.number < page_obj.paginator.num_pages %}disabled{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.number < page_obj.paginator.num_pages %}?page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}">
+                        <!-- Last -->
+                        <svg class="icon icon-last all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6v12"/>           <!-- vertical bar -->
+                                <path d="M6 7l7 5-7 5"/>      <!-- double chevron pointing right -->
+                            </g>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </nav>
         <div class="list-group all-l-ani-1">
-            {% for user in users %}
+            {% for user in page_obj %}
                 <div class="hover-anim-1 list-group-item d-flex justify-content-between align-items-start position-relative user-clickable" data-href="{{ user.id }}" style="cursor: pointer;">
                     
-                    <div>
-                        <h5 class="mb-1 all-l-ani-1">@{{ user.username }}</h5>
+                    <div class="user-card-1">
+                        <h5 class="gluser1 all-l-ani-1">@{{ user.username }}</h5>
                         <small class="text-muted all-l-ani-1">
                             Joined on {{ user.date_joined|date:"M d, Y" }}
-                            {% if user.is_staff %}- <span class="text-warning">Staff</span>{% endif %}
+                            {% if user.is_staff %}- <span class="text-danger">Administrator</span>{% endif %}
                         </small>
                         {% if user.profile.bio %}
                         <div class="mt-2 text-muted small all-l-ani-1">{{ user.profile.bio }}</div>
@@ -31,6 +124,99 @@ Users
                 </div>
             {% endfor %}
         </div>
+        <!-- Pagination controls footer -->
+        <!--
+            @Copyright (C) By DJANGO_BLOOM_PROJECTS @ThaiMinhHoang
+            All rights reserved
+        -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-3 all-l-ani-1">
+                {# Nút First #}
+                <li class="page-item all-l-ani-1 {% if not page_obj.number > 1 %}disabled{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.number > 1 %}?page=1{% else %}#{% endif %}">
+                        <!-- First -->
+                        <svg class="icon icon-first all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 6v12"/>            <!-- vertical bar -->
+                                <path d="M18 7L11 12l7 5"/>    <!-- double chevron pointing left -->
+                            </g>
+                        </svg>
+                    </a>
+                </li>
+
+                {# Nút Previous #}
+                <li class="page-item all-l-ani-1 {% if not page_obj.has_previous %}disabled{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}">
+                        <!-- Previous -->
+                        <svg class="icon icon-prev all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 6L9 12l6 6"/>
+                            </g>
+                        </svg>
+                    </a>
+                </li>
+
+                {# Trang 1 #}
+                {% if page_obj.number > 3 %}
+                    <li class="page-item all-l-ani-1">
+                        <a class="page-link all-l-ani-1" href="?page=1">1</a>
+                    </li>
+                    {% if page_obj.number > 4 %}
+                        <li class="page-item disabled all-l-ani-1"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endif %}
+
+                {# Các trang xung quanh trang hiện tại #}
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                        {% if num == page_obj.number %}
+                        <li class="page-item active all-l-ani-1"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                        <li class="page-item all-l-ani-1">
+                            <a class="page-link all-l-ani-1" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {# Trang cuối #}
+                {% if page_obj.number < page_obj.paginator.num_pages|add:'-2' %}
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                        <li class="page-item disabled all-l-ani-1"><span class="page-link all-l-ani-1">…</span></li>
+                    {% endif %}
+                    <li class="page-item all-l-ani-1">
+                        <a class="page-link all-l-ani-1" href="?page={{ page_obj.paginator.num_pages }}">
+                        {{ page_obj.paginator.num_pages }}
+                        </a>
+                    </li>
+                {% endif %}
+
+                {# Nút Next #}
+                <li class="page-item all-l-ani-1 {% if not page_obj.has_next %}disabled{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}">
+                        <!-- Next -->
+                        <svg class="icon icon-next all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 6l6 6-6 6"/>
+                            </g>
+                        </svg>
+                    </a>
+                </li>
+
+                {# Nút Last #}
+                <li class="page-item all-l-ani-1 {% if not page_obj.number < page_obj.paginator.num_pages %}disabled{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.number < page_obj.paginator.num_pages %}?page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}">
+                        <!-- Last -->
+                        <svg class="icon icon-last all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6v12"/>           <!-- vertical bar -->
+                                <path d="M6 7l7 5-7 5"/>      <!-- double chevron pointing right -->
+                            </g>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     {% else %}
         <div class="alert alert-info all-l-ani-1">
             No users found.

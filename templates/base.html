@@ -3,16 +3,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'bootstrap-icons.css' %}">
     <meta charset="UTF-8">
     <title>{% block title %}Istar{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css">
+    <link rel="preload" as="style" href="{% static 'bootstrap.css' %}">
+    <link rel="preload" as="style" href="{% static 'bootstrap-dark.css' %}">
     
     <!-- Bootstrap 5 CSS -->
-    <link  id="bootstrap-css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link  id="bootstrap-css" href="{% static 'bootstrap.css' %}" rel="stylesheet">
+    <script>
+        function stringShorten(str, maxLength = 10) {
+            if (str.length <= maxLength) return str;
+
+            const keep = Math.floor((maxLength - 3) / 2); // trừ 3 cho "..."
+            const start = str.slice(0, keep);
+            const end = str.slice(-keep);
+            return start + "..." + end;
+        }
+        /**
+         * Rút gọn chuỗi số theo K/M/B với rule "digit after kept >= 8 => round up".
+         * Trả về original input khi input không phải số hợp lệ (ngoại trừ dấu +/- , và dấu phẩy).
+         */
+        function shortenNumber(input) {
+            if (input === null || input === undefined) return String(input);
+
+            const raw = String(input).trim();
+            if (raw === '') return raw;
+
+            // xử lý dấu +/-
+            let sign = '';
+            let s = raw;
+            if (s[0] === '+' || s[0] === '-') {
+                if (s[0] === '-') sign = '-';
+                s = s.slice(1).trim();
+            }
+
+            // remove commas / spaces thường dùng trong số (1,234,567)
+            s = s.replace(/[, ]+/g, '');
+
+            // chỉ chấp nhận digits hoặc digits.decimals
+            if (!/^\d+(\.\d+)?$/.test(s)) {
+                // invalid: trả về nguyên input (như yêu cầu: xử lý lỗi kí tự)
+                return raw;
+            }
+
+            // tách phần nguyên và phần thập phân (nếu có)
+            const parts = s.split('.');
+            const intStr = parts[0] || '0';
+            const fracStr = parts[1] || '';
+
+            // scaled = integer representation (type BigInt)
+            const scaledStr = intStr + fracStr;
+            const scaled = BigInt(scaledStr || '0');
+            const scalePow = 10n ** BigInt(fracStr.length); // 10^scale
+
+            // constants
+            const K = 1000n;
+            const M = 1000000n;
+            const B = 1000000000n;
+            const LIMIT = 1000n * B; // 1000B
+
+            // nếu số (đã scale) >= LIMIT * scalePow -> trả ">= 1000B"
+            if (scaled >= LIMIT * scalePow) return '>= 1000B';
+
+            // units ascend: K -> M -> B (tiện xử lý khi rounding "bump" lên unit trên)
+            const units = [
+                { sym: 'K', size: K },
+                { sym: 'M', size: M },
+                { sym: 'B', size: B },
+            ];
+
+            // nếu nhỏ hơn K thì trả lại dạng số (bỏ 0 thừa ở phẩn thập)
+            function formatSmall(scaledVal, scalePowVal) {
+                const intPart = scaledVal / scalePowVal;
+                let fracPart = (scaledVal % scalePowVal).toString().padStart(Number(fracStr.length), '0');
+                // bỏ trailing zeros
+                fracPart = fracPart.replace(/0+$/, '');
+                if (!fracPart) return sign + intPart.toString();
+                return sign + intPart.toString() + '.' + fracPart;
+            }
+
+            // duyệt các đơn vị
+            for (let i = 0; i < units.length; i++) {
+                const unit = units[i];
+                const unitScale = unit.size * scalePow;
+
+                if (scaled >= unitScale) {
+                    // valTimes100 = floor( (value_in_unit) * 100 )
+                    // = floor( scaled * 100 / (unit.size * scalePow) )
+                    const valTimes100 = (scaled * 100n) / (unit.size * scalePow);
+
+                    let intPart = valTimes100 / 100n;            // phần nguyên (BigInt)
+                    const rem = valTimes100 % 100n;             // 2 chữ số thập phân (as int 0..99)
+                    let firstDecimal = rem / 10n;               // chữ số thập phân đầu tiên (tenths)
+                    const nextDigit = rem % 10n;                // chữ số ngay sau (hundredths) - để xét >=8
+
+                    if (intPart > 8n) {
+                        // nếu đang giữ phần nguyên (chỉ hiển thị integer), nhưng vẫn xét làm tròn bằng firstDecimal
+                        if (firstDecimal >= 8n) intPart += 1n;
+
+                        // kiểm tra nếu làm tròn đẩy vượt 1000 (vd: 1000K -> 1M)
+                        const resultTimes10 = intPart * 10n; // vì firstDecimal = 0 sau khi chỉ hiện integer
+                        if (resultTimes10 >= 10000n) {
+                        // nếu đã đến unit trên
+                        if (i === units.length - 1) {
+                            // unit là B (cao nhất): nếu đẩy vượt => >=1000B
+                            return '>= 1000B';
+                        } else {
+                            // chuyển lên unit kế tiếp (loop tiếp)
+                            continue;
+                        }
+                        }
+
+                        return sign + intPart.toString() + unit.sym;
+                    } else {
+                        // giữ 1 chữ số thập phân, nhưng xét làm tròn nếu nextDigit >= 8
+                        if (nextDigit >= 8n) {
+                            firstDecimal += 1n;
+                            if (firstDecimal === 10n) {
+                                intPart += 1n;
+                                firstDecimal = 0n;
+                            }
+                        }
+
+                        const resultTimes10 = intPart * 10n + firstDecimal;
+                        if (resultTimes10 >= 10000n) {
+                            // ví dụ: 999.98K -> sau làm tròn thành 1000.0K -> phải đẩy sang M
+                            if (i === units.length - 1) {
+                                    return '>= 1000B';
+                            } else {
+                                continue; // bump lên unit kế tiếp
+                            }
+                        }
+                        // format: bỏ .0 nếu firstDecimal === 0
+                        if (firstDecimal === 0n) {
+                            return sign + intPart.toString() + unit.sym;
+                        }
+                        return sign + intPart.toString() + '.' + firstDecimal.toString() + unit.sym;
+                    }
+                }
+            }
+            // nếu không đạt tới K (nhỏ hơn 1000) -> trả số đầy đủ (loại bỏ 0 thừa)
+            return formatSmall(scaled, scalePow);
+        }
+    </script>
     <style>
         :root {
         --spin-size-1: .6rem;
@@ -185,11 +321,130 @@
             z-index: -1;
         }
 
+        .background-filter-3 {
+            display: block;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            filter: blur(6px);
+            border-radius: none;
+            background-image: url("{% static 'lightTKB.jpg' %}");
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            transition: all .57s ease;
+            z-index: -1;
+        }
+
+        .rsplit-1 {
+            margin-right: 10rem;
+            margin-bottom: .1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rsplit-3 {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            margin-top: .67rem;
+            margin-left: 0rem;
+            margin-right: 6rem;
+        }
+
+        .a-f-1 {
+            display: flex;
+            position: relative;
+        }
+
+        .p-rel-1 {
+            display: flex;
+            position: fixed;
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+            pointer-events: visible;
+            box-shadow: 0 0 1rem rgba(153, 153, 153, 0.32);
+            width: 9.4em;
+            height: 3.5em;
+            z-index: 100 !important;
+        }
+
+        .rep-l-1 {
+            margin-left: .2rem !important;
+        }
+
+        .outer-flex-1 {
+            display: inline-flex;
+            white-space: nowrap;
+            word-break: keep-all;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: .2rem;
+        }
+
+        @keyframes fadeIn-cmedit {
+            0% {
+                opacity: 0;
+                transform: translateX(-2rem);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0rem);
+            }
+        }
+
+        @keyframes fadeOut-cmedit {
+            0% {
+                opacity: 1;
+                transform: translateX(0rem);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(2rem);
+            }
+        }
+
+        .rsplit-2 {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
         .wr-w-1 {
             width: 100%;
             word-break: break-all;
             overflow: hidden;
         }
+
+        .nowrap-1 {
+            display: inline-flex;
+            white-space: nowrap !important;
+            word-break: keep-all;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 76%;
+            margin-top: 0rem;
+        }
+
+        .post-title-1 {
+            font-size: .88em;
+            display: flex;
+            position: relative;
+            white-space: nowrap;
+            word-break: keep-all;
+            overflow: hidden;
+        }
+
+        /* .mg-t-1 {
+            margin: 1rem !important;
+        }
+
+        .mg-m-1 {
+            align-self: last baseline;
+        } */
 
         .logout-link:hover {
         background-color: rgba(196, 31, 42, 0.258);
@@ -223,6 +478,38 @@
         margin-bottom: .5rem;
         }
 
+        .seperator-1 {
+            display: flex;
+            position: relative;
+            width: 100%;
+            height: 0rem !important;
+            border: 0px solid rgba(149, 149, 149, 0);
+            margin-bottom: 1.4rem;
+        }
+
+        .seperator-2 {
+            display: flex;
+            position: relative;
+            width: 100%;
+            height: 0rem !important;
+            margin-top: .38rem;
+            border: 1.1px dashed rgba(149, 149, 149, 0.575);
+        }
+
+        .user-card-1 {
+            display: flex;
+            flex-direction: column;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .gluser1 {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
         .nav-link {
         padding: 0.3rem 0.75rem;
         }
@@ -233,6 +520,13 @@
 
         .navbar-toggler {
             transition: all .21s ease;
+        }
+
+        .aa-1 {
+            border-radius: 9px !important;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
 
         .show {
@@ -647,9 +941,17 @@
 
         #title-tkb {
             font-size: 2rem;
+            color: rgba(35, 35, 35, 0.874);
+            /* background-color: rgba(164, 176, 174, 0.689); */
             white-space: nowrap;
             transform: all .23s ease;
             animation: slideIn2 .5s ease;
+        }
+
+        #userHello {
+            display: inline-flex !important;
+            white-space: nowrap !important;
+            overflow: hidden;
         }
 
         @media (max-width: 770px) {
@@ -742,7 +1044,7 @@
                         </li>
                         <li class="border-reg-div"></li>
                         <li class="nav-item-link">
-                            <a class="nav-link" href="/accounts/{{ request.user.id }}">Hello, {{ user.username }}!</a>
+                            <a class="nav-link" id="userHello" href="/accounts/{{ request.user.id }}"></a>
                         </li>
                         <li class="nav-item-link-regis logout-link">
                             <form action="/accounts/logout/" method="post" style="display: inline;">
@@ -819,12 +1121,16 @@
     </svg>
 
     <!-- Bootstrap JS Bundle (includes Popper) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'bootstrap.bundle.js' %}"></script>
     
     <script>
-    const alertTitle = document.querySelector('#badge-warn-1');
+    const alertTitle = document.querySelector("#badge-warn-1");
+    const userHello = document.getElementById("userHello");
+    const _userName = `{{ user.username }}`;
     document.addEventListener("DOMContentLoaded", function () {
         const text = document.getElementById('text-warn-1');
+        userHello.innerHTML = `Hello, ${stringShorten(_userName, parseInt("0000000000000".length))}!`;
+        userHello.style.color = "rgba(255, 255, 244, .7)";
         text.style.opacity = '0';
         alertTitle.style.width = "2rem";
     });
@@ -845,23 +1151,28 @@
     <script>
     const backgroundImg = document.querySelector(".background-filter-1");
     const backgroundImg1 = document.querySelector(".background-filter-2");
+    const backgroundImg2 = document.querySelector(".background-filter-3");
 
     function toggleTheme() {
         const link = document.getElementById("bootstrap-css");
-        const isDark = link.href.includes("darkly");
+        const isDark = link.href.includes("dark");
 
         link.href = isDark
-            ? "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-            : "https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/darkly/bootstrap.min.css";
+            ? "{% static 'bootstrap.css' %}"
+            : "{% static 'bootstrap-dark.css' %}";
+        
+        console.log(link.href, isDark);
 
         const nextTheme = isDark ? "light" : "dark";
         localStorage.setItem("theme", nextTheme);
     }
 
-    setInterval( function() {
+    setInterval(function() {
         const icon = document.querySelector("#themeToggleBtn i");
         const link = document.getElementById("bootstrap-css");
-        const isDark = link.href.includes("darkly");
+        const isDark = link.href.includes("dark");
+
+        // console.log(isDark);
 
         if (backgroundImg) {
             backgroundImg.style.backgroundImage = `
@@ -883,12 +1194,22 @@
             `;
         }
 
+        if (backgroundImg2) {
+            backgroundImg2.style.backgroundImage = `
+                url("${
+                isDark
+                ? "{% static 'darkTKB.jpg' %}"
+                : "{% static 'lightTKB.jpg' %}"
+                }")
+            `;
+        }
+
         if (isDark) {
             icon.className = "bi bi-moon";
         } else {
             icon.className = "bi bi-sun";
         }
-    }, 200); // Check every 100ms
+    }, 200); // Check every 200ms
 
     // Load saved theme on page load
     document.addEventListener("DOMContentLoaded", function () {

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from post.models import Post, Vote
 from django.db.models import OuterRef, Subquery, CharField, Value
 from django.db.models.functions import Coalesce
+from django.core.paginator import Paginator
 
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -40,9 +41,25 @@ def viewProfile(request, profileId):
     })
 
 
+# def accountsList(request):
+#     if request.user.is_authenticated:
+#         users=User.objects.all().order_by('-date_joined')
+#         return render(request ,"accountsList.html", {"users": users})
+#     else:
+#         return redirect("/")
+
 def accountsList(request):
-    if request.user.is_authenticated:
-        users=User.objects.all().order_by('-date_joined')
-        return render(request ,"accountsList.html", {"users": users})
-    else:
+    if not request.user.is_authenticated:
         return redirect("/")
+
+    users = User.objects.all().order_by('-date_joined')
+
+    # Phân trang (10 user/trang)
+    paginator = Paginator(users, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "accountsList.html", {
+        "users": page_obj.object_list,
+        "page_obj": page_obj,
+    })
