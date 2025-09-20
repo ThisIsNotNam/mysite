@@ -26,13 +26,19 @@
          * Rút gọn chuỗi số theo K/M/B với rule "digit after kept >= 8 => round up".
          * Trả về original input khi input không phải số hợp lệ (ngoại trừ dấu +/- , và dấu phẩy).
          */
+        /**
+         * shortenNumber(input)
+         * - K = nghìn, M = triệu, B = tỉ
+         * - Quy tắc làm tròn: "chữ số ngay sau phần sẽ giữ lại >= 8 => làm tròn lên"
+         * - Nếu >= 1000B => ">= 1000B"
+         * - Nếu input không phải số hợp lệ (ngoại trừ + - , và dấu chấm) => trả về nguyên input
+         */
         function shortenNumber(input) {
             if (input === null || input === undefined) return String(input);
-
             const raw = String(input).trim();
             if (raw === '') return raw;
 
-            // xử lý dấu +/-
+            // sign
             let sign = '';
             let s = raw;
             if (s[0] === '+' || s[0] === '-') {
@@ -40,112 +46,93 @@
                 s = s.slice(1).trim();
             }
 
-            // remove commas / spaces thường dùng trong số (1,234,567)
-            s = s.replace(/[, ]+/g, '');
+            // remove commas/spaces
+            s = s.replace(/[,\s]+/g, '');
 
-            // chỉ chấp nhận digits hoặc digits.decimals
-            if (!/^\d+(\.\d+)?$/.test(s)) {
-                // invalid: trả về nguyên input (như yêu cầu: xử lý lỗi kí tự)
-                return raw;
-            }
+            // validate (digits with optional decimal)
+            if (!/^\d+(\.\d+)?$/.test(s)) return raw;
 
-            // tách phần nguyên và phần thập phân (nếu có)
             const parts = s.split('.');
             const intStr = parts[0] || '0';
             const fracStr = parts[1] || '';
 
-            // scaled = integer representation (type BigInt)
             const scaledStr = intStr + fracStr;
-            const scaled = BigInt(scaledStr || '0');
-            const scalePow = 10n ** BigInt(fracStr.length); // 10^scale
+            const scalePow = 10n ** BigInt(fracStr.length);
+            let scaled = BigInt(scaledStr || '0');
 
-            // constants
             const K = 1000n;
             const M = 1000000n;
             const B = 1000000000n;
             const LIMIT = 1000n * B; // 1000B
 
-            // nếu số (đã scale) >= LIMIT * scalePow -> trả ">= 1000B"
             if (scaled >= LIMIT * scalePow) return '>= 1000B';
 
-            // units ascend: K -> M -> B (tiện xử lý khi rounding "bump" lên unit trên)
             const units = [
                 { sym: 'K', size: K },
                 { sym: 'M', size: M },
                 { sym: 'B', size: B },
             ];
 
-            // nếu nhỏ hơn K thì trả lại dạng số (bỏ 0 thừa ở phẩn thập)
             function formatSmall(scaledVal, scalePowVal) {
                 const intPart = scaledVal / scalePowVal;
                 let fracPart = (scaledVal % scalePowVal).toString().padStart(Number(fracStr.length), '0');
-                // bỏ trailing zeros
                 fracPart = fracPart.replace(/0+$/, '');
                 if (!fracPart) return sign + intPart.toString();
                 return sign + intPart.toString() + '.' + fracPart;
             }
 
-            // duyệt các đơn vị
-            for (let i = 0; i < units.length; i++) {
-                const unit = units[i];
+            // iterate with possible cascading bumps
+            let idx = 0;
+            while (idx < units.length) {
+                const unit = units[idx];
                 const unitScale = unit.size * scalePow;
 
-                if (scaled >= unitScale) {
-                    // valTimes100 = floor( (value_in_unit) * 100 )
-                    // = floor( scaled * 100 / (unit.size * scalePow) )
-                    const valTimes100 = (scaled * 100n) / (unit.size * scalePow);
+                if (scaled < unitScale) {
+                idx++;
+                continue;
+                }
 
-                    let intPart = valTimes100 / 100n;            // phần nguyên (BigInt)
-                    const rem = valTimes100 % 100n;             // 2 chữ số thập phân (as int 0..99)
-                    let firstDecimal = rem / 10n;               // chữ số thập phân đầu tiên (tenths)
-                    const nextDigit = rem % 10n;                // chữ số ngay sau (hundredths) - để xét >=8
+                // floor(value_in_unit * 100)
+                let valTimes100 = (scaled * 100n) / unitScale;
 
-                    if (intPart > 8n) {
-                        // nếu đang giữ phần nguyên (chỉ hiển thị integer), nhưng vẫn xét làm tròn bằng firstDecimal
-                        if (firstDecimal >= 8n) intPart += 1n;
+                let intPart = valTimes100 / 100n; // integer part
+                let rem = valTimes100 % 100n;     // two digits of decimals as integer 0..99
+                let firstDecimal = rem / 10n;
+                let nextDigit = rem % 10n;
 
-                        // kiểm tra nếu làm tròn đẩy vượt 1000 (vd: 1000K -> 1M)
-                        const resultTimes10 = intPart * 10n; // vì firstDecimal = 0 sau khi chỉ hiện integer
-                        if (resultTimes10 >= 10000n) {
-                        // nếu đã đến unit trên
-                        if (i === units.length - 1) {
-                            // unit là B (cao nhất): nếu đẩy vượt => >=1000B
-                            return '>= 1000B';
-                        } else {
-                            // chuyển lên unit kế tiếp (loop tiếp)
-                            continue;
-                        }
-                        }
+                // compute tenths (value * 10 after rounding according to rule)
+                let tenths;
+                if (intPart > 8n) {
+                    // only integer shown; round integer if firstDecimal >= 8
+                    tenths = intPart * 10n;
+                    if (firstDecimal >= 8n) tenths += 10n;
+                } else {
+                    // keep one decimal; round that decimal if nextDigit >= 8
+                    tenths = intPart * 10n + firstDecimal;
+                    if (nextDigit >= 8n) tenths += 1n;
+                }
 
-                        return sign + intPart.toString() + unit.sym;
-                    } else {
-                        // giữ 1 chữ số thập phân, nhưng xét làm tròn nếu nextDigit >= 8
-                        if (nextDigit >= 8n) {
-                            firstDecimal += 1n;
-                            if (firstDecimal === 10n) {
-                                intPart += 1n;
-                                firstDecimal = 0n;
-                            }
-                        }
+                // if rounding pushes >= 1000.0 of current unit => bump to next unit
+                if (tenths >= 10000n) { // 10000 tenths == 1000.0
+                    const scaledRounded = (tenths * unit.size * scalePow) / 10n;
+                    if (scaledRounded >= LIMIT * scalePow) return '>= 1000B';
+                    scaled = scaledRounded;
+                    idx += 1; // move to next unit and re-evaluate
+                    continue;
+                }
 
-                        const resultTimes10 = intPart * 10n + firstDecimal;
-                        if (resultTimes10 >= 10000n) {
-                            // ví dụ: 999.98K -> sau làm tròn thành 1000.0K -> phải đẩy sang M
-                            if (i === units.length - 1) {
-                                    return '>= 1000B';
-                            } else {
-                                continue; // bump lên unit kế tiếp
-                            }
-                        }
-                        // format: bỏ .0 nếu firstDecimal === 0
-                        if (firstDecimal === 0n) {
-                            return sign + intPart.toString() + unit.sym;
-                        }
-                        return sign + intPart.toString() + '.' + firstDecimal.toString() + unit.sym;
-                    }
+                // otherwise build output from tenths in current unit
+                const intOut = tenths / 10n;
+                const decOut = tenths % 10n;
+
+                // if integer part > 8 => show integer only (rule), OR if decimal == 0 => drop .0
+                if (intOut > 8n || decOut === 0n) {
+                    return sign + intOut.toString() + unit.sym;
+                } else {
+                    return sign + intOut.toString() + '.' + decOut.toString() + unit.sym;
                 }
             }
-            // nếu không đạt tới K (nhỏ hơn 1000) -> trả số đầy đủ (loại bỏ 0 thừa)
+            // smaller than K
             return formatSmall(scaled, scalePow);
         }
     </script>
@@ -287,6 +274,39 @@
         transform: translateY(0rem) scale(0.99);
         backdrop-filter: blur(var(--blur-link-all));
         }
+
+        .info-div-p-1 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            position: relative;
+            font-size: 1.15rem;
+            color: rgba(160, 160, 160, 0.662);
+            width: 100%;
+            margin-bottom: 1.7rem;
+        }
+
+        .showall-p-1 {
+            border: 2px dashed rgba(137, 137, 137, 0.566);
+            border-radius: 10px !important;
+            box-shadow: 0 0 20px rgba(154, 154, 154, 0.13);
+            padding-left: .5rem;
+            padding-top: .13rem;
+            padding-bottom: .13rem;
+            padding-right: .1rem;
+            transition: all .3s ease;
+        }
+
+        .showall-p-1:hover {
+            box-shadow: .15rem .15rem 9px rgba(171, 171, 171, 0.598);
+        }
+
+        .showall-p-1:active {
+            box-shadow: .1rem .1rem 3px rgba(171, 171, 171, 0.598);
+        }
         
         .background-filter-1 {
             display: block;
@@ -314,23 +334,6 @@
             filter: blur(10px);
             border-radius: none;
             background-image: url("{% static 'lightAbout.jpg' %}");
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
-            transition: all .57s ease;
-            z-index: -1;
-        }
-
-        .background-filter-3 {
-            display: block;
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            filter: blur(6px);
-            border-radius: none;
-            background-image: url("{% static 'lightTKB.jpg' %}");
             background-position: center;
             background-size: cover;
             background-repeat: no-repeat;
@@ -523,10 +526,41 @@
         }
 
         .aa-1 {
+            white-space: nowrap;
+            word-wrap: none;
             border-radius: 9px !important;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            margin-bottom: .3rem;
+        }
+
+        .ab-1 {
+            display: flex;
+            flex-direction: row;
+            position: relative;
+            white-space: nowrap;
+            word-wrap: none;
+            border-radius: 9px !important;
+            align-items: center;
+            justify-content: start;
+            overflow: hidden;
+            margin-bottom: .3rem;
+            padding-right: 1rem;
+        }
+
+        .dv-svg-p-p-1 {
+            display: flex;
+            flex-direction: row;
+            position: absolute;
+            inset: 0;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-right: 1.46px dashed rgba(164, 164, 164, 0.594);
+            width: 1.4rem;
+            height: 100%;
+            margin-right: .2rem;
         }
 
         .show {
@@ -887,6 +921,12 @@
             transition: all .23s ease;
         }
 
+        .flex-start-g-1 {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
         .hover-anim-1 {
             box-shadow: 0 0 .123rem rgba(147, 147, 147, 0.219);
             transition: all .23s ease;
@@ -1151,7 +1191,6 @@
     <script>
     const backgroundImg = document.querySelector(".background-filter-1");
     const backgroundImg1 = document.querySelector(".background-filter-2");
-    const backgroundImg2 = document.querySelector(".background-filter-3");
 
     function toggleTheme() {
         const link = document.getElementById("bootstrap-css");
@@ -1190,16 +1229,6 @@
                 isDark
                 ? "{% static 'darkAbout.jpg' %}"
                 : "{% static 'lightAbout.jpg' %}"
-                }")
-            `;
-        }
-
-        if (backgroundImg2) {
-            backgroundImg2.style.backgroundImage = `
-                url("${
-                isDark
-                ? "{% static 'darkTKB.jpg' %}"
-                : "{% static 'lightTKB.jpg' %}"
                 }")
             `;
         }

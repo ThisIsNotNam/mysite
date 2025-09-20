@@ -5,7 +5,13 @@
 {% block content %}
 <div class="container mt-4 anim-l-1">
     <div class="d-flex justify-content-between align-items-center mb-3 all-l-ani-1">
-        <h1 class="h3 all-l-ani-1">My Bookmarked Posts</h1>
+        {% if userStatusPostShow == '0' %}
+            <h1 class="h3 all-l-ani-1">My Bookmarked Posts</h1>
+        {% elif userStatusPostShow == '1' %}
+            <h1 class="h3 all-l-ani-1">My Bookmarked Posts Of {{ userNamePostShow }}</h1>
+        {% else %}
+            <h1 class="h3 all-l-ani-1">My Bookmarked Posts Of *Unknown User</h1>
+        {% endif %}
     </div>
 
     {% if page_obj %}
@@ -18,7 +24,7 @@
             <ul class="pagination justify-content-center mt-3 all-l-ani-1">
                 {# Nút First #}
                 <li class="page-item all-l-ani-1 {% if not page_obj.number > 1 %}disabled{% endif %}">
-                    <a class="page-link all-l-ani-1" href="{% if page_obj.number > 1 %}?page=1{% else %}#{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.number > 1 %}?page=1{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}{% else %}#{% endif %}">
                         <!-- First -->
                         <svg class="icon icon-first all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
                             <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -31,7 +37,7 @@
 
                 {# Nút Previous #}
                 <li class="page-item all-l-ani-1 {% if not page_obj.has_previous %}disabled{% endif %}">
-                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}{% else %}#{% endif %}">
                         <!-- Previous -->
                         <svg class="icon icon-prev all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
                             <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -44,7 +50,7 @@
                 {# Trang 1 #}
                 {% if page_obj.number > 3 %}
                     <li class="page-item all-l-ani-1">
-                        <a class="page-link all-l-ani-1" href="?page=1">1</a>
+                        <a class="page-link all-l-ani-1" href="?page=1{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}">1</a>
                     </li>
                     {% if page_obj.number > 4 %}
                         <li class="page-item disabled all-l-ani-1"><span class="page-link">…</span></li>
@@ -58,7 +64,7 @@
                         <li class="page-item active all-l-ani-1"><span class="page-link">{{ num }}</span></li>
                         {% else %}
                         <li class="page-item all-l-ani-1">
-                            <a class="page-link all-l-ani-1" href="?page={{ num }}">{{ num }}</a>
+                            <a class="page-link all-l-ani-1" href="?page={{ num }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}">{{ num }}</a>
                         </li>
                         {% endif %}
                     {% endif %}
@@ -70,7 +76,7 @@
                         <li class="page-item disabled all-l-ani-1"><span class="page-link all-l-ani-1">…</span></li>
                     {% endif %}
                     <li class="page-item all-l-ani-1">
-                        <a class="page-link all-l-ani-1" href="?page={{ page_obj.paginator.num_pages }}">
+                        <a class="page-link all-l-ani-1" href="?page={{ page_obj.paginator.num_pages }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}">
                         {{ page_obj.paginator.num_pages }}
                         </a>
                     </li>
@@ -78,7 +84,7 @@
 
                 {# Nút Next #}
                 <li class="page-item all-l-ani-1 {% if not page_obj.has_next %}disabled{% endif %}">
-                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}{% else %}#{% endif %}">
                         <!-- Next -->
                         <svg class="icon icon-next all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
                             <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -90,7 +96,7 @@
 
                 {# Nút Last #}
                 <li class="page-item all-l-ani-1 {% if not page_obj.number < page_obj.paginator.num_pages %}disabled{% endif %}">
-                    <a class="page-link all-l-ani-1" href="{% if page_obj.number < page_obj.paginator.num_pages %}?page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.number < page_obj.paginator.num_pages %}?page={{ page_obj.paginator.num_pages }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}{% else %}#{% endif %}">
                         <!-- Last -->
                         <svg class="icon icon-last all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
                             <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -150,30 +156,34 @@
                     <div class="seperator-2"></div><p class="post-title-1">{{ bookmark.post.date|date:"F j, Y, g:i a" }}</p>
 <!--------------------------------------------------------------------------------------------------->
 <!--vote options-->
-                    <div class="d-flex align-items-center mt-4 all-l-ani-1" data-post-id="{{ bookmark.post.id }}">
+                    <div class="d-flex flex-start-g-1 align-items-center mt-4 all-l-ani-1" data-post-id="{{ bookmark.post.id }}">
                         <!-- <p>{{ bookmark.userVote }}</p> -->
-                        <button class="btn aa-1 all-l-ani-1 btn-sm {% if bookmark.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
-                            <svg class="upvote-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if bookmark.userVote == 'up' %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="like">
-                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                            </svg>
-                            <span class="upvote-count rep-l-1 all-l-ani-1" id="post-upvotes" data-postvotes="{{ bookmark.upvotes }}"></span>
-                        </button>
-
-                        <button class="btn aa-1 all-l-ani-1 btn-sm {% if bookmark.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} me-2 downvote-btn">
-                            <svg class="downvote-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if bookmark.userVote == 'down' %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="dislike">
-                                <g transform="rotate(180 12 12)">
+                        <div>
+                            <button class="btn aa-1 all-l-ani-1 btn-sm {% if bookmark.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
+                                <svg class="upvote-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if bookmark.userVote == 'up' %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="like">
                                     <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                                </g>
-                            </svg>
-                            <span class="downvote-count rep-l-1 all-l-ani-1" id="post-downvotes" data-postvotes="{{ bookmark.downvotes }}"></span>
-                        </button>
+                                </svg>
+                                <span class="upvote-count rep-l-1 all-l-ani-1" id="post-upvotes" data-postvotes="{{ bookmark.upvotes }}"></span>
+                            </button>
 
-                        <button class="btn aa-1 all-l-ani-1 btn-sm {% if bookmark.userBookmarked %}btn-warning{% else %}btn-outline-warning{% endif %} bookmark-btn">
-                            <svg class="bookmark-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if bookmark.userBookmarked %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="bookmark">
-                                <path d="M5 3a2 2 0 0 0-2 2v16l9-4 9 4V5a2 2 0 0 0-2-2H5z"/>
-                            </svg>
-                            <span class="bookmark-count rep-l-1 all-l-ani-1" id="post-bookmarks" data-bookmarks="{{ bookmark.bookmarkscount }}"></span>
-                        </button>
+                            <button class="btn aa-1 all-l-ani-1 btn-sm {% if bookmark.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} me-2 downvote-btn">
+                                <svg class="downvote-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if bookmark.userVote == 'down' %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="dislike">
+                                    <g transform="rotate(180 12 12)">
+                                        <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                                    </g>
+                                </svg>
+                                <span class="downvote-count rep-l-1 all-l-ani-1" id="post-downvotes" data-postvotes="{{ bookmark.downvotes }}"></span>
+                            </button>
+                        </div>
+
+                        <div>
+                            <button class="btn aa-1 all-l-ani-1 btn-sm {% if bookmark.userBookmarked %}btn-warning{% else %}btn-outline-warning{% endif %} bookmark-btn">
+                                <svg class="bookmark-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if bookmark.userBookmarked %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="bookmark">
+                                    <path d="M5 3a2 2 0 0 0-2 2v16l9-4 9 4V5a2 2 0 0 0-2-2H5z"/>
+                                </svg>
+                                <span class="bookmark-count rep-l-1 all-l-ani-1" id="post-bookmarks" data-bookmarks="{{ bookmark.bookmarkscount }}"></span>
+                            </button>
+                        </div>
                     </div>
                     <small class="text-muted all-l-ani-1" id="warn-txt-{{ bookmark.post.id }}"></small>
                 </div>
@@ -188,7 +198,7 @@
             <ul class="pagination justify-content-center mt-3 all-l-ani-1">
                 {# Nút First #}
                 <li class="page-item all-l-ani-1 {% if not page_obj.number > 1 %}disabled{% endif %}">
-                    <a class="page-link all-l-ani-1" href="{% if page_obj.number > 1 %}?page=1{% else %}#{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.number > 1 %}?page=1{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}{% else %}#{% endif %}">
                         <!-- First -->
                         <svg class="icon icon-first all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
                             <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -201,7 +211,7 @@
 
                 {# Nút Previous #}
                 <li class="page-item all-l-ani-1 {% if not page_obj.has_previous %}disabled{% endif %}">
-                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}{% else %}#{% endif %}">
                         <!-- Previous -->
                         <svg class="icon icon-prev all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
                             <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -214,7 +224,7 @@
                 {# Trang 1 #}
                 {% if page_obj.number > 3 %}
                     <li class="page-item all-l-ani-1">
-                        <a class="page-link all-l-ani-1" href="?page=1">1</a>
+                        <a class="page-link all-l-ani-1" href="?page=1{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}">1</a>
                     </li>
                     {% if page_obj.number > 4 %}
                         <li class="page-item disabled all-l-ani-1"><span class="page-link">…</span></li>
@@ -228,7 +238,7 @@
                         <li class="page-item active all-l-ani-1"><span class="page-link">{{ num }}</span></li>
                         {% else %}
                         <li class="page-item all-l-ani-1">
-                            <a class="page-link all-l-ani-1" href="?page={{ num }}">{{ num }}</a>
+                            <a class="page-link all-l-ani-1" href="?page={{ num }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}">{{ num }}</a>
                         </li>
                         {% endif %}
                     {% endif %}
@@ -240,7 +250,7 @@
                         <li class="page-item disabled all-l-ani-1"><span class="page-link all-l-ani-1">…</span></li>
                     {% endif %}
                     <li class="page-item all-l-ani-1">
-                        <a class="page-link all-l-ani-1" href="?page={{ page_obj.paginator.num_pages }}">
+                        <a class="page-link all-l-ani-1" href="?page={{ page_obj.paginator.num_pages }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}">
                         {{ page_obj.paginator.num_pages }}
                         </a>
                     </li>
@@ -248,7 +258,7 @@
 
                 {# Nút Next #}
                 <li class="page-item all-l-ani-1 {% if not page_obj.has_next %}disabled{% endif %}">
-                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}{% else %}#{% endif %}">
                         <!-- Next -->
                         <svg class="icon icon-next all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
                             <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -260,7 +270,7 @@
 
                 {# Nút Last #}
                 <li class="page-item all-l-ani-1 {% if not page_obj.number < page_obj.paginator.num_pages %}disabled{% endif %}">
-                    <a class="page-link all-l-ani-1" href="{% if page_obj.number < page_obj.paginator.num_pages %}?page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}">
+                    <a class="page-link all-l-ani-1" href="{% if page_obj.number < page_obj.paginator.num_pages %}?page={{ page_obj.paginator.num_pages }}{% if userStatusPostShow != '0' %}&user={{ userIdPostShow }}{% endif %}{% else %}#{% endif %}">
                         <!-- Last -->
                         <svg class="icon icon-last all-l-ani-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg">
                             <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -274,7 +284,7 @@
         </nav>
     {% else %}
         <div class="alert alert-info all-l-ani-1">
-            You haven't bookmarked any posts yet.
+            You haven't bookmarked any posts {% if userStatusPostShow != '0' %}of {% if userStatusPostShow == '1' %}{{ userNamePostShow }}{% else %}This user{% endif %}{% endif %} yet.
         </div>
     {% endif %}
 </div>

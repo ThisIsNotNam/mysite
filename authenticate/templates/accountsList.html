@@ -110,12 +110,28 @@ Users
         <div class="list-group all-l-ani-1">
             {% for user in page_obj %}
                 <div class="hover-anim-1 list-group-item d-flex justify-content-between align-items-start position-relative user-clickable" data-href="{{ user.id }}" style="cursor: pointer;">
-                    
                     <div class="user-card-1">
                         <h5 class="gluser1 all-l-ani-1">@{{ user.username }}</h5>
                         <small class="text-muted all-l-ani-1">
-                            Joined on {{ user.date_joined|date:"M d, Y" }}
-                            {% if user.is_staff %}- <span class="text-danger">Administrator</span>{% endif %}
+                            <div class="d-flex" style="flex-direction: column;">
+                                <p>
+                                    Joined on {{ user.date_joined|date:"M d, Y" }}
+                                    {% if user.is_staff %}- <span class="text-danger">Administrator</span>{% endif %}
+                                </p>
+                                <a class="btn ab-1 all-l-ani-1 btn-sm btn-outline-primary post-btn" href="/posts/?user={{ user.id }}" style="width: 7rem !important;">
+                                    <div class="dv-svg-p-p-1">
+                                        <svg class="post-svg" width="17" height="17" viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor" stroke-width="2"
+                                            aria-hidden="true" role="img" aria-label="post">
+                                            <path d="M6 2h7l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/>
+                                            <line x1="8" y1="9" x2="16" y2="9"/>
+                                            <line x1="8" y1="12" x2="16" y2="12"/>
+                                        </svg>
+                                    </div>
+                                    <span class="post-count rep-l-1 all-l-ani-1" style="display:flex;padding-left: 1.1rem;" data-postscnt="{{ user.post_count }}"></span>
+                                </a>
+                            </div>
                         </small>
                         {% if user.profile.bio %}
                         <div class="mt-2 text-muted small all-l-ani-1">{{ user.profile.bio }}</div>
@@ -224,10 +240,16 @@ Users
     {% endif %}
 </div>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const postCnt = document.querySelectorAll(".post-count");
+        postCnt.forEach((e) => {
+            e.textContent = shortenNumber(`${e.dataset.postscnt}`);
+        });
+    });
     // Make user blocks clickable
     document.querySelectorAll(".user-clickable").forEach(item => {
         item.addEventListener("click", e => {
-            if (!e.target.closest("form")) {
+            if (!(e.target.closest("form") || e.target.closest("a"))) {
                 window.location = item.dataset.href;
             }
         });

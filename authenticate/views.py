@@ -1,7 +1,7 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from post.models import Post, Vote
-from django.db.models import OuterRef, Subquery, CharField, Value
+from post.models import Post, Vote, Bookmark
+from django.db.models import OuterRef, Subquery, CharField, Value, Count, Q
 from django.db.models.functions import Coalesce
 from django.core.paginator import Paginator
 
@@ -53,6 +53,14 @@ def accountsList(request):
         return redirect("/")
 
     users = User.objects.all().order_by('-date_joined')
+
+    # Annotate thêm dữ liệu
+    users = users.annotate(
+        post_count=Count("post", distinct=True),  # số post của user
+        vote_count=Count("post__votes", distinct=True),  # tổng vote (up + down)
+        bookmark_count=Count("post__bookmarks", distinct=True),  # tổng bookmark
+        like_count=Count("post__votes", filter=Q(post__votes__voteType="up"), distinct=True)  # tổng like
+    )
 
     # Phân trang (10 user/trang)
     paginator = Paginator(users, 10)
