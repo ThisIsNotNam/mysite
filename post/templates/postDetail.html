@@ -20,9 +20,9 @@
 
   <!-- Combined Title + Body -->
   {% if request.user == post.author or request.user.is_staff %}
-  <div class="border rounded p-rel-1 anim-l-1" id="btns-action">
-    <div class="a-f-1">
-      <a href="/posts/{{ post.id }}/edit/" class="btn btn-outline-primary me-2 all-l-ani-1">Edit</a>
+  <div class="d-flex justify-content-end mb-2">
+    <div class="d-flex gap-2">
+      <a href="/posts/{{ post.id }}/edit/" class="btn btn-outline-primary all-l-ani-1">Edit</a>
       <form method="post" action="/posts/{{ post.id }}/delete/" onsubmit="return confirm('Are you sure you want to delete this post?');">
         {% csrf_token %}
         <input type="hidden" name="next" value="/posts/">
@@ -110,31 +110,31 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  const actionBtn = document.getElementById("btns-action");
-  const rootContainer = document.getElementById("container-comments");
-  var anirunning = false;
-  rootContainer.addEventListener('mouseenter', function(e) {
-    if (actionBtn && !anirunning) {
-      anirunning = true;
-      actionBtn.style.opacity = "0";
-      actionBtn.style.display = "flex";
-      actionBtn.style.animation = "fadeIn-cmedit .6s ease forwards";
-      setTimeout(() => {
-        anirunning = false;
-      }, 610);
-    }
-  });
-  rootContainer.addEventListener('mouseleave', function(e) {
-    if (actionBtn && !anirunning) {
-      anirunning = true;
-      actionBtn.style.opacity = "1";
-      actionBtn.style.animation = "fadeOut-cmedit .6s ease forwards";
-      setTimeout(() => {
-        actionBtn.style.display = "none";
-        anirunning = false;
-      }, 610);
-    }
-  });
+  // const actionBtn = document.getElementById("btns-action");
+  // const rootContainer = document.getElementById("container-comments");
+  // var anirunning = false;
+  // rootContainer.addEventListener('mouseenter', function(e) {
+  //   if (actionBtn && !anirunning) {
+  //     anirunning = true;
+  //     actionBtn.style.opacity = "0";
+  //     actionBtn.style.display = "flex";
+  //     actionBtn.style.animation = "fadeIn-cmedit .6s ease forwards";
+  //     setTimeout(() => {
+  //       anirunning = false;
+  //     }, 610);
+  //   }
+  // });
+  // rootContainer.addEventListener('mouseleave', function(e) {
+  //   if (actionBtn && !anirunning) {
+  //     anirunning = true;
+  //     actionBtn.style.opacity = "1";
+  //     actionBtn.style.animation = "fadeOut-cmedit .6s ease forwards";
+  //     setTimeout(() => {
+  //       actionBtn.style.display = "none";
+  //       anirunning = false;
+  //     }, 610);
+  //   }
+  // });
 });
 </script>
 {% endblock %}
