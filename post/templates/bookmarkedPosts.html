@@ -103,32 +103,15 @@
             </ul>
         </nav>
         <div class="list-group all-l-ani-1">
-            {% for bookmark in page_obj %}
-                <!-- <li class="hover-anim-1 list-group-item d-flex justify-content-between align-items-start position-relative" style="cursor: pointer;">
-                    <div>
-                        <a href="/posts/{{ bookmark.post.id }}">
-                            {{ bookmark.post.title }}
-                        </a>
-                        <br>
-                        <small class="text-muted">
-                            Bookmarked on {{ bookmark.created_at|date:"Y-m-d H:i" }}
-                        </small>
-                    </div>
-                    <form method="post" action="#">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-danger">Remove</button>
-                    </form>
-                </li> -->
-
-
-                <div class="rsplit-2 list-group-item position-relative post-clickable all-l-ani-1 hover-anim-1" data-href="/posts/{{ bookmark.post.id }}/" style="cursor: pointer;">
+            {% for post in page_obj %}
+                <div class="rsplit-2 list-group-item position-relative post-clickable all-l-ani-1 hover-anim-1" data-href="/posts/{{ post.id }}/" style="cursor: pointer;">
 <!--------------------------------------------------------------------------------------------------->
 <!-- Delete Button -->
-                {% if request.user == bookmark.post.author or request.user.is_staff %}
-                    <a href="/posts/{{ bookmark.post.id }}/edit/" class="btn btn-sm btn-outline-info all-l-ani-1 position-absolute top-0 nth-1 m-2 all-l-ani-1" title="Edit">
+                {% if request.user == post.author or request.user.is_staff %}
+                    <a href="/posts/{{ post.id }}/edit/" class="btn btn-sm btn-outline-info all-l-ani-1 position-absolute top-0 nth-1 m-2 all-l-ani-1" title="Edit">
                         <i class="bi bi-pen"></i>
                     </a>
-                    <form method="post" action="/posts/{{ bookmark.post.id }}/delete/"
+                    <form method="post" action="/posts/{{ post.id }}/delete/"
                           class="position-absolute top-0 nth-0 m-2 all-l-ani-1"
                           onsubmit="return confirm('Are you sure you want to delete this post?');">
                         {% csrf_token %}
@@ -139,43 +122,42 @@
                     </form>
                 {% endif %}
 <!--------------------------------------------------------------------------------------------------->
-                    <h5 class="all-l-ani-1 rsplit-1">{{ bookmark.post.title }}</h5>
+                    <h5 class="all-l-ani-1 rsplit-1">{{ post.title }}</h5>
                     <div class="nowrap-1">
-                    <small class="text-muted all-l-ani-1">Posted by @<span class="outer-flex-1" id="canal-1" data-postauthor="{{ bookmark.post.author }}"></span></small>
+                    <small class="text-muted all-l-ani-1">Posted by @<span class="outer-flex-1" id="canal-1" data-postauthor="{{ post.author }}"></span></small>
                     </div><div class="seperator-1"></div>
                     <div class="rsplit-3 post-body post-body-clamp all-l-ani-1">
-                    {{ bookmark.post.body }}
+                    {{ post.body }}
                     </div>
                     <a class="see-more-text link-secondary text-decoration-underline all-l-ani-1" href="#">See more...</a>
-                    <div class="seperator-2"></div><p class="post-title-1">{{ bookmark.post.date|date:"F j, Y, g:i a" }}</p>
+                    <div class="seperator-2"></div><p class="post-title-1">{{ post.date|date:"F j, Y, g:i a" }}</p>
 <!--------------------------------------------------------------------------------------------------->
 <!--vote options-->
-                    <div class="d-flex align-items-center mt-4 all-l-ani-1" data-post-id="{{ bookmark.post.id }}">
-                        <!-- <p>{{ bookmark.userVote }}</p> -->
-                        <button class="btn aa-1 all-l-ani-1 btn-sm {% if bookmark.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
-                            <svg class="upvote-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if bookmark.userVote == 'up' %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="like">
+                    <div class="d-flex align-items-center mt-4 all-l-ani-1" data-post-id="{{ post.id }}">
+                        <button class="btn aa-1 all-l-ani-1 btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
+                            <svg class="upvote-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if post.userVote == 'up' %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="like">
                                 <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
                             </svg>
-                            <span class="upvote-count rep-l-1 all-l-ani-1" id="post-upvotes" data-postvotes="{{ bookmark.upvotes }}"></span>
+                            <span class="upvote-count rep-l-1 all-l-ani-1" id="post-upvotes" data-postvotes="{{ post.upvotes }}"></span>
                         </button>
 
-                        <button class="btn aa-1 all-l-ani-1 btn-sm {% if bookmark.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} me-2 downvote-btn">
-                            <svg class="downvote-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if bookmark.userVote == 'down' %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="dislike">
+                        <button class="btn aa-1 all-l-ani-1 btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} me-2 downvote-btn">
+                            <svg class="downvote-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if post.userVote == 'down' %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="dislike">
                                 <g transform="rotate(180 12 12)">
                                     <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
                                 </g>
                             </svg>
-                            <span class="downvote-count rep-l-1 all-l-ani-1" id="post-downvotes" data-postvotes="{{ bookmark.downvotes }}"></span>
+                            <span class="downvote-count rep-l-1 all-l-ani-1" id="post-downvotes" data-postvotes="{{ post.downvotes }}"></span>
                         </button>
 
-                        <button class="btn aa-1 all-l-ani-1 btn-sm {% if bookmark.userBookmarked %}btn-warning{% else %}btn-outline-warning{% endif %} bookmark-btn">
-                            <svg class="bookmark-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if bookmark.userBookmarked %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="bookmark">
+                        <button class="btn aa-1 all-l-ani-1 btn-sm {% if post.userBookmarked %}btn-warning{% else %}btn-outline-warning{% endif %} bookmark-btn">
+                            <svg class="bookmark-svg" width="17" height="17" viewBox="0 0 24 24" fill="{% if post.userBookmarked %}white{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img" aria-label="bookmark">
                                 <path d="M5 3a2 2 0 0 0-2 2v16l9-4 9 4V5a2 2 0 0 0-2-2H5z"/>
                             </svg>
-                            <span class="bookmark-count rep-l-1 all-l-ani-1" id="post-bookmarks" data-bookmarks="{{ bookmark.bookmarkscount }}"></span>
+                            <span class="bookmark-count rep-l-1 all-l-ani-1" id="post-bookmarks" data-bookmarks="{{ post.bookmarkscount }}"></span>
                         </button>
                     </div>
-                    <small class="text-muted all-l-ani-1" id="warn-txt-{{ bookmark.post.id }}"></small>
+                    <small class="text-muted all-l-ani-1" id="warn-txt-{{ post.id }}"></small>
                 </div>
             {% endfor %}
         </div>

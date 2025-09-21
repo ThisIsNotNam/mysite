@@ -10,5 +10,5 @@ urlpatterns = [
     path("<int:postId>/edit/", views.editPost),
     path("vote/", views.votePost, name='votePost'),
     path("bookmark/", views.bookmarkPost, name="bookmarkPost"),
-    path("bookmarksview/", views.bookmarked_posts, name="bookmarked_posts"),
+    path("bookmarksview/", views.postsList, name="bookmarked_posts"),
 ]

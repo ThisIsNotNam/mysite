@@ -46,70 +46,18 @@ def editPost(request, postId):
 
     return render(request, "editPost.html", {'form': form, 'post': post})
 
-# def postsList(request):
-#     if not request.user.is_authenticated:
-#         return redirect("/")
-#     canShowAll = request.GET.get("show_all") == "1"
-
-#     # Base queryset
-#     postsQuery = Post.objects.all() if canShowAll else Post.objects.filter(author=request.user)
-
-#     # Subquery to get user's vote
-#     user_vote_subquery = Vote.objects.filter(
-#         post=OuterRef('pk'),
-#         user=request.user
-#     ).values('voteType')[:1]
-
-
-#     # Annotate with upvotes, downvotes, and userVote
-#     postsQuery = postsQuery.annotate(
-#         upvotes=Count('votes', filter=Q(votes__voteType='up')),
-#         downvotes=Count('votes', filter=Q(votes__voteType='down')),
-#         userVote=Subquery(user_vote_subquery, output_field=CharField())
-#     )
-
-
-#     selectedSortOption = request.POST.get('selectedSortOption') or 'time'
-#     selectedFilterOption = request.POST.get('selectedFilterOption') or 'all'
-
-
-#     # Handle sorting and filtering
-#     if request.method == 'POST':
-#         #Sort
-#         if selectedSortOption == 'upVote':
-#             postsQuery = postsQuery.order_by('-upvotes', 'downvotes')
-#         elif selectedSortOption == 'downVote':
-#             postsQuery = postsQuery.order_by('-downvotes', 'upvotes')
-#         else:
-#             postsQuery = postsQuery.order_by('-date')
-
-#         #Filter
-#         if selectedFilterOption == 'day':
-#             postsQuery = postsQuery.filter(date__gte=timezone.now() - timedelta(days=1))
-#         elif selectedFilterOption == 'week':
-#             postsQuery = postsQuery.filter(date__gte=timezone.now() - timedelta(weeks=1))
-#         elif selectedFilterOption == 'month':
-#             postsQuery = postsQuery.filter(date__gte=timezone.now() - timedelta(days=30))
-#         # else: all time
-
-#     else:
-#         postsQuery = postsQuery.order_by('-date')  # Default sort by time
-
-#     return render(request, "postsList.html", {
-#         'posts': postsQuery,
-#         'canShowAll': canShowAll,
-#         'selectedSortOption': selectedSortOption,
-#         'selectedFilterOption': selectedFilterOption
-#     })
-
-def postsList(request):
+def postsList(request:HttpRequest):
     if not request.user.is_authenticated:
         return redirect("/")
 
     canShowAll = request.GET.get("show_all") == "1"
 
+    inBookmarkView=request.resolver_match.url_name == "bookmarked_posts"
+
     # Base queryset
-    postsQuery = Post.objects.all() if canShowAll else Post.objects.filter(author=request.user)
+    postsQuery = Post.objects.all() if (canShowAll or inBookmarkView) else Post.objects.filter(author=request.user)
+    if inBookmarkView:
+        postsQuery=postsQuery.filter(bookmarks__user=request.user)
 
     # Subquery to get user's vote
     user_vote_subquery = Vote.objects.filter(
@@ -125,10 +73,10 @@ def postsList(request):
 
     # Annotate
     postsQuery = postsQuery.annotate(
-        upvotes=Count('votes', filter=Q(votes__voteType='up')),
-        downvotes=Count('votes', filter=Q(votes__voteType='down')),
+        upvotes=Count('votes', filter=Q(votes__voteType='up'), distinct=True),
+        downvotes=Count('votes', filter=Q(votes__voteType='down'), distinct=True),
         userVote=Subquery(user_vote_subquery, output_field=CharField()),
-        bookmarkscount=Count('bookmarks'),  # số lượng bookmark
+        bookmarkscount=Count('bookmarks', distinct=True),  # số lượng bookmark
         userBookmarked=Exists(user_bookmark_subquery)  # True/False
     )
 
@@ -158,68 +106,15 @@ def postsList(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
+    if inBookmarkView:
+        return render(request, "bookmarkedPosts.html", {'page_obj': page_obj})
+
     return render(request, "postsList.html", {
         'page_obj': page_obj,   # dùng page_obj thay vì posts
         'canShowAll': canShowAll,
         'selectedSortOption': selectedSortOption,
         'selectedFilterOption': selectedFilterOption
     })
-
-@login_required
-def bookmarked_posts(request):
-    if not request.user.is_authenticated:
-        return redirect("/")
-    
-    bookmarks = Bookmark.objects.filter(user=request.user).select_related("post")
-
-    # # Subquery to get user's vote
-    # user_vote_subquery = Vote.objects.filter(
-    #     post=OuterRef('pk'),
-    #     user=request.user
-    # ).values('voteType')[:1]
-
-    # # subquery để lấy user bookmark
-    # user_bookmark_subquery = Bookmark.objects.filter(
-    #     post=OuterRef("pk"),
-    #     user=request.user
-    # )
-
-    # # Annotate
-    # bookmarks = bookmarks.annotate(
-    #     upvotes=Count("post__votes", filter=Q(post__votes__voteType="up")),
-    #     downvotes=Count("post__votes", filter=Q(post__votes__voteType="down")),
-    #     userVote=Subquery(user_vote_subquery, output_field=CharField()),
-    #     bookmarkscount=Count('post__bookmarks'),  # số lượng bookmark
-    #     userBookmarked=Exists(user_bookmark_subquery)  # True/False
-    # )
-
-    # Subquery to get user's vote (the related post id is post__pk, not pk of Bookmark)
-    user_vote_subquery = Vote.objects.filter(
-        post=OuterRef('post__pk'),
-        user=request.user
-    ).values('voteType')[:1]
-
-    # Subquery để lấy user bookmark (cũng dựa trên post__pk)
-    user_bookmark_subquery = Bookmark.objects.filter(
-        post=OuterRef("post__pk"),
-        user=request.user
-    )
-
-    bookmarks = bookmarks.annotate(
-        upvotes=Count("post__votes", filter=Q(post__votes__voteType="up")),
-        downvotes=Count("post__votes", filter=Q(post__votes__voteType="down")),
-        userVote=Subquery(user_vote_subquery, output_field=CharField()),
-        bookmarkscount=Count("post__bookmarks"),
-        userBookmarked=Exists(user_bookmark_subquery)
-    )
-
-    bookmarks = bookmarks.order_by("-post__date")   # hoặc "post__date" tuỳ bạn muốn mới nhất lên đầu hay ngược lại
-    # bookmarks = bookmarks.order_by("post__id")    # nếu muốn giữ nguyên thứ tự id tăng dần
-
-    paginator = Paginator(bookmarks, 10)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    return render(request, "bookmarkedPosts.html", {"page_obj": page_obj})
 
 def newPost(request):
     if request.user.is_authenticated:
