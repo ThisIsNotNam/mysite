@@ -271,13 +271,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const bookmarkCnt = document.querySelectorAll("#post-bookmarks");
     upvotesCnt.forEach((e) => {
         console.log(e.dataset.postvotes);
-        e.textContent = shortenNumber(`${e.dataset.postvotes}`);
+        e.textContent = formatter.format(e.dataset.postvotes);
     });
     downvotesCnt.forEach((e) => {
-        e.textContent = shortenNumber(`${e.dataset.postvotes}`);
+        e.textContent = formatter.format(e.dataset.postvotes);
     });
     bookmarkCnt.forEach((e) => {
-        e.textContent = shortenNumber(`${e.dataset.bookmarks}`);
+        e.textContent = formatter.format(e.dataset.bookmarks);
     });
 });
 document.addEventListener('DOMContentLoaded', function () {
@@ -298,13 +298,8 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => res.json())
             .then(data => {
                 if (data.up !== undefined && data.down !== undefined) {
-                    const formatter = new Intl.NumberFormat('en', {
-                        notation: 'compact',
-                        compactDisplay: 'short'
-                    });
-
-                    postElement.querySelector('.upvote-count').textContent = shortenNumber(`${formatter.format(data.up)}`);
-                    postElement.querySelector('.downvote-count').textContent = shortenNumber(`${formatter.format(data.down)}`);
+                    postElement.querySelector('.upvote-count').textContent = formatter.format(data.up);
+                    postElement.querySelector('.downvote-count').textContent = formatter.format(data.down);
 
                     const upBtn = postElement.querySelector('.upvote-btn');
                     const downBtn = postElement.querySelector('.downvote-btn');
@@ -355,12 +350,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => res.json())
             .then(data => {
                 if (data.bookmarks !== undefined) {
-                    // Cập nhật số bookmark (có formatter giống upvote/downvote nếu cần)
-                    const formatter = new Intl.NumberFormat('en', {
-                        notation: 'compact',
-                        compactDisplay: 'short'
-                    });
-                    postElement.querySelector('.bookmark-count').textContent = shortenNumber(`${formatter.format(data.bookmarks)}`);
+                    postElement.querySelector('.bookmark-count').textContent = formatter.format(data.bookmarks);
 
                     // Cập nhật trạng thái button + icon
                     const bookmarkBtn = postElement.querySelector('.bookmark-btn');

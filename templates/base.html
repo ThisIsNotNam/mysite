@@ -14,6 +14,11 @@
     <!-- Bootstrap 5 CSS -->
     <link  id="bootstrap-css" href="{% static 'bootstrap.css' %}" rel="stylesheet">
     <script>
+        const formatter = new Intl.NumberFormat('en', {
+            notation: 'compact',
+            compactDisplay: 'short'
+        });
+
         function stringShorten(str, maxLength = 10) {
             if (str.length <= maxLength) return str;
 
@@ -26,128 +31,6 @@
          * Rút gọn chuỗi số theo K/M/B với rule "digit after kept >= 8 => round up".
          * Trả về original input khi input không phải số hợp lệ (ngoại trừ dấu +/- , và dấu phẩy).
          */
-        function shortenNumber(input) {
-            if (input === null || input === undefined) return String(input);
-
-            const raw = String(input).trim();
-            if (raw === '') return raw;
-
-            // xử lý dấu +/-
-            let sign = '';
-            let s = raw;
-            if (s[0] === '+' || s[0] === '-') {
-                if (s[0] === '-') sign = '-';
-                s = s.slice(1).trim();
-            }
-
-            // remove commas / spaces thường dùng trong số (1,234,567)
-            s = s.replace(/[, ]+/g, '');
-
-            // chỉ chấp nhận digits hoặc digits.decimals
-            if (!/^\d+(\.\d+)?$/.test(s)) {
-                // invalid: trả về nguyên input (như yêu cầu: xử lý lỗi kí tự)
-                return raw;
-            }
-
-            // tách phần nguyên và phần thập phân (nếu có)
-            const parts = s.split('.');
-            const intStr = parts[0] || '0';
-            const fracStr = parts[1] || '';
-
-            // scaled = integer representation (type BigInt)
-            const scaledStr = intStr + fracStr;
-            const scaled = BigInt(scaledStr || '0');
-            const scalePow = 10n ** BigInt(fracStr.length); // 10^scale
-
-            // constants
-            const K = 1000n;
-            const M = 1000000n;
-            const B = 1000000000n;
-            const LIMIT = 1000n * B; // 1000B
-
-            // nếu số (đã scale) >= LIMIT * scalePow -> trả ">= 1000B"
-            if (scaled >= LIMIT * scalePow) return '>= 1000B';
-
-            // units ascend: K -> M -> B (tiện xử lý khi rounding "bump" lên unit trên)
-            const units = [
-                { sym: 'K', size: K },
-                { sym: 'M', size: M },
-                { sym: 'B', size: B },
-            ];
-
-            // nếu nhỏ hơn K thì trả lại dạng số (bỏ 0 thừa ở phẩn thập)
-            function formatSmall(scaledVal, scalePowVal) {
-                const intPart = scaledVal / scalePowVal;
-                let fracPart = (scaledVal % scalePowVal).toString().padStart(Number(fracStr.length), '0');
-                // bỏ trailing zeros
-                fracPart = fracPart.replace(/0+$/, '');
-                if (!fracPart) return sign + intPart.toString();
-                return sign + intPart.toString() + '.' + fracPart;
-            }
-
-            // duyệt các đơn vị
-            for (let i = 0; i < units.length; i++) {
-                const unit = units[i];
-                const unitScale = unit.size * scalePow;
-
-                if (scaled >= unitScale) {
-                    // valTimes100 = floor( (value_in_unit) * 100 )
-                    // = floor( scaled * 100 / (unit.size * scalePow) )
-                    const valTimes100 = (scaled * 100n) / (unit.size * scalePow);
-
-                    let intPart = valTimes100 / 100n;            // phần nguyên (BigInt)
-                    const rem = valTimes100 % 100n;             // 2 chữ số thập phân (as int 0..99)
-                    let firstDecimal = rem / 10n;               // chữ số thập phân đầu tiên (tenths)
-                    const nextDigit = rem % 10n;                // chữ số ngay sau (hundredths) - để xét >=8
-
-                    if (intPart > 8n) {
-                        // nếu đang giữ phần nguyên (chỉ hiển thị integer), nhưng vẫn xét làm tròn bằng firstDecimal
-                        if (firstDecimal >= 8n) intPart += 1n;
-
-                        // kiểm tra nếu làm tròn đẩy vượt 1000 (vd: 1000K -> 1M)
-                        const resultTimes10 = intPart * 10n; // vì firstDecimal = 0 sau khi chỉ hiện integer
-                        if (resultTimes10 >= 10000n) {
-                        // nếu đã đến unit trên
-                        if (i === units.length - 1) {
-                            // unit là B (cao nhất): nếu đẩy vượt => >=1000B
-                            return '>= 1000B';
-                        } else {
-                            // chuyển lên unit kế tiếp (loop tiếp)
-                            continue;
-                        }
-                        }
-
-                        return sign + intPart.toString() + unit.sym;
-                    } else {
-                        // giữ 1 chữ số thập phân, nhưng xét làm tròn nếu nextDigit >= 8
-                        if (nextDigit >= 8n) {
-                            firstDecimal += 1n;
-                            if (firstDecimal === 10n) {
-                                intPart += 1n;
-                                firstDecimal = 0n;
-                            }
-                        }
-
-                        const resultTimes10 = intPart * 10n + firstDecimal;
-                        if (resultTimes10 >= 10000n) {
-                            // ví dụ: 999.98K -> sau làm tròn thành 1000.0K -> phải đẩy sang M
-                            if (i === units.length - 1) {
-                                    return '>= 1000B';
-                            } else {
-                                continue; // bump lên unit kế tiếp
-                            }
-                        }
-                        // format: bỏ .0 nếu firstDecimal === 0
-                        if (firstDecimal === 0n) {
-                            return sign + intPart.toString() + unit.sym;
-                        }
-                        return sign + intPart.toString() + '.' + firstDecimal.toString() + unit.sym;
-                    }
-                }
-            }
-            // nếu không đạt tới K (nhỏ hơn 1000) -> trả số đầy đủ (loại bỏ 0 thừa)
-            return formatSmall(scaled, scalePow);
-        }
     </script>
     <style>
         :root {

@@ -45,14 +45,12 @@
 
   <!-- Voting -->
   <div class="d-flex align-items-center border rounded p-2 anim-l-1" data-post-id="{{ post.id }}">
-    <button
-      class="btn all-l-ani-1 btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
-      👍 <span class="upvote-count all-l-ani-1">{{ post.upvotes }}</span>
+    <button class="btn all-l-ani-1 btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
+    👍 <span class="upvote-count all-l-ani-1" data-postvotes="{{ post.upvotes }}"></span>
     </button>
 
-    <button
-      class="btn all-l-ani-1 btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} downvote-btn">
-      👎 <span class="downvote-count all-l-ani-1">{{ post.downvotes }}</span>
+    <button class="btn all-l-ani-1 btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} downvote-btn">
+    👎 <span class="downvote-count all-l-ani-1" data-postvotes="{{ post.downvotes }}"></span>
     </button>
   </div>
 </div>
@@ -61,6 +59,16 @@
 {% block extra_scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+  document.querySelectorAll('.upvote-count').forEach(e => {
+    console.log(e.dataset.postvotes);
+    e.textContent = formatter.format(e.dataset.postvotes);
+  });
+  document.querySelectorAll('.downvote-count').forEach(e => {
+    e.textContent = formatter.format(e.dataset.postvotes);
+    console.log(e.dataset.postvotes);
+  });
+
   document.querySelectorAll('.upvote-btn, .downvote-btn').forEach(button => {
     button.addEventListener('click', function () {
       const postElement = this.closest('[data-post-id]');
@@ -78,11 +86,6 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(res => res.json())
       .then(data => {
         if (data.up !== undefined && data.down !== undefined) {
-          const formatter = new Intl.NumberFormat('en', {
-            notation: 'compact',
-            compactDisplay: 'short'
-          });
-
           postElement.querySelector('.upvote-count').textContent = formatter.format(data.up);
           postElement.querySelector('.downvote-count').textContent = formatter.format(data.down);
 
