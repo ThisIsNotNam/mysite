@@ -232,6 +232,58 @@
         white-space: nowrap;
         margin-left: 0.3rem;
         }
+        
+        .mt-p-p-1 {
+            margin-top: .2rem;
+            margin-bottom: .2rem;
+        }
+
+        .post-card-item-1 {
+            padding: .67rem;
+            border: 1px solid rgba(159, 159, 159, 0.692);
+            border-radius: .7rem;
+            margin-bottom: 1.3rem;
+        }
+
+        .gla-p-p-1 {
+            display: none;
+            position: fixed;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            top: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-right: .15rem;
+            margin-left: .15rem;
+            box-shadow: 0 0 15px rgba(255, 177, 74, 0.799);
+            z-index: 999999999999;
+            /* animation: notificationShow .5s ease forwards; */
+        }
+
+        @keyframes notificationShow {
+            0% {
+                transform: translate(-50%, -10rem);
+            }
+            46% {
+                transform: translate(-50%, 2rem);
+            }
+            100% {
+                transform: translate(-50%, 0rem);
+            }
+        }
+
+        @keyframes notificationHide {
+            0% {
+                transform: translate(-50%, 0rem);
+            }
+            46% {
+                transform: translate(-50%, 2rem);
+            }
+            100% {
+                transform: translate(-50%, -15rem);
+            }
+        }
 
         .nav-item-link {
         position: relative;
@@ -966,6 +1018,110 @@
             height: 3rem;
         }
 
+        .card-usr-deltail {
+            display: flex !important;
+            flex-wrap: wrap;
+            overflow: hidden;
+            gap: 4rem;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 1rem rgba(156, 156, 156, .2);
+        }
+        
+        .h2-p-p-1-v {
+            font-size: 1.6rem;
+            white-space: nowrap;
+        }
+
+        .no-wrap-p-1 {
+            font-family: cursive;
+            white-space: nowrap;
+            word-break: keep-all;
+        }
+
+        .h2-post {
+            color: rgb(10, 137, 227);
+        }
+
+        .h2-vote {
+            color: rgb(137, 227, 10);
+        }
+
+        .h2-dislike {
+            color: rgb(227, 108, 10);
+        }
+
+        .h2-bookmark {
+            color: rgb(227, 209, 10);
+        }
+
+        .h2-comment {
+            color: rgb(126, 10, 227);
+        }
+
+        .card-p-p-1 {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 1px solid rgba(156, 156, 156, 0.629);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 10rem;
+            height: 10rem;
+            box-shadow: 0 0 10px rgba(156, 156, 156, .2);
+            transition: all .35s ease;
+        }
+
+        .card-p-p-1:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(156, 156, 156, .7);
+        }
+
+        .close-notify-btn {
+            display: flex;
+            position: absolute;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-radius: 50%;
+        }
+
+        /* nút đóng */
+        #notifyDiv .notify-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: absolute;
+            top: -1.2rem;
+            right: -.9rem;
+            border: none;
+            background: rgba(255, 204, 0, 0.29);
+            color: #fff;
+            font-size: 1.5rem;
+            width: 32px !important;
+            height: 32px !important;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 .2rem rgba(158, 92, 0, 0.615);
+            transition: all .3s ease;
+        }
+
+        /* hover */
+        #notifyDiv .notify-close:hover {
+            background: rgba(160, 77, 0, 0.403);
+        }
+
+        /* active (khi bấm giữ) */
+        #notifyDiv .notify-close:active {
+            background: rgba(171, 97, 0, 0.555);
+            transform: scale(0.97);
+        }
+
         @keyframes slideIn2 {
             from { transform: translateY(-3rem); }
             to { transform: translateY(0rem); }
@@ -981,7 +1137,7 @@
 
         #title-tkb {
             font-size: 2rem;
-            color: rgba(35, 35, 35, 0.874);
+            /* color: rgba(35, 35, 35, 0.874); */
             /* background-color: rgba(164, 176, 174, 0.689); */
             white-space: nowrap;
             transform: all .23s ease;
@@ -1053,6 +1209,7 @@
     <!-- extra head is wild LMAO -->
 </head>
 <body>
+    <div class="alert alert-warning gla-p-p-1" id="notifyDiv"></div>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-glass-custom mb-4">
         <div class="container-fluid">
@@ -1165,15 +1322,18 @@
     
     <script>
     const alertTitle = document.querySelector("#badge-warn-1");
-    const userHello = document.getElementById("userHello");
-    const _userName = `{{ user.username }}`;
-    document.addEventListener("DOMContentLoaded", function () {
-        const text = document.getElementById('text-warn-1');
-        userHello.innerHTML = `Hello, ${stringShorten(_userName, parseInt("0000000000000".length))}!`;
-        userHello.style.color = "rgba(255, 255, 244, .7)";
-        text.style.opacity = '0';
-        alertTitle.style.width = "2rem";
-    });
+    const _signed = "{% if user.is_authenticated %}OK{% else %}NO{% endif %}";
+    if (_signed == "OK") {
+        const userHello = document.getElementById("userHello");
+        const _userName = `{{ user.username }}`;
+        document.addEventListener("DOMContentLoaded", function () {
+            const text = document.getElementById('text-warn-1');
+            userHello.innerHTML = `Hello, ${stringShorten(_userName, parseInt("0000000000000".length))}!`;
+            userHello.style.color = "rgba(255, 255, 244, .7)";
+            text.style.opacity = '0';
+            alertTitle.style.width = "2rem";
+        });
+    }
     alertTitle.addEventListener('mouseenter', function() {
         const text = document.getElementById('text-warn-1');
         const iconWarnSize = document.querySelector('#badge-warn-1').querySelector('span');
@@ -1239,6 +1399,136 @@
             icon.className = "bi bi-sun";
         }
     }, 200); // Check every 200ms
+
+    const notificationDiv = document.querySelector("#notifyDiv");
+
+    let notificationQueue = [];
+    let processing = false;
+    let currentTimer = null;       // timer cho thời gian hiển thị (duration)
+    let currentAnimTimer = null;   // timer cho animation (show/hide)
+    let generation = 0;            // tăng lên khi hide được gọi -> huỷ các công việc cũ
+
+    const SHOW_ANIM_MS = 700;
+    const HIDE_ANIM_MS = 700;
+
+    // Thêm thông báo vào hàng đợi
+    function show_notification(textMsg, duration = 5) {
+        notificationQueue.push({ text: String(textMsg), duration: Math.max(0, duration) * 1000 });
+        // luôn gọi processQueue() — nếu đang processing thì hàm sẽ return ngay
+        processQueue();
+    }
+
+    async function processQueue() {
+        if (processing) return;
+        processing = true;
+
+        while (notificationQueue.length > 0) {
+            const item = notificationQueue.shift();
+            const myGen = generation;
+
+            // clear timers cũ (nếu có)
+            if (currentTimer) { clearTimeout(currentTimer); currentTimer = null; }
+            if (currentAnimTimer) { clearTimeout(currentAnimTimer); currentAnimTimer = null; }
+
+            // chuẩn bị hiển thị
+            notificationDiv.innerHTML = `
+                ${item.text}
+                <button class="notify-close">&times;</button>
+            `;
+
+            // gán sự kiện cho nút đóng
+            const closeBtn = notificationDiv.querySelector(".notify-close");
+            if (closeBtn) {
+                closeBtn.onclick = () => hide_notification();
+            }
+            // đảm bảo có display để animation chạy
+            if (getComputedStyle(notificationDiv).display === "none") {
+                notificationDiv.style.display = "flex";
+            }
+
+            // reset animation để replay đúng
+            notificationDiv.style.animation = "none";
+            // ép reflow để animation restart
+            void notificationDiv.offsetWidth;
+            // bắt đầu animation show
+            notificationDiv.style.animation = `notificationShow ${SHOW_ANIM_MS}ms ease forwards`;
+
+            // chờ animation show xong
+            await new Promise(resolve => {
+                currentAnimTimer = setTimeout(() => {
+                    currentAnimTimer = null;
+                    resolve();
+                }, SHOW_ANIM_MS);
+            });
+
+            // nếu bị huỷ trong lúc show -> thoát vòng xử lý
+            if (myGen !== generation) break;
+
+            // đợi thời gian hiển thị (duration), có thể bị huỷ bởi hide_notification
+            await new Promise(resolve => {
+                currentTimer = setTimeout(() => {
+                    currentTimer = null;
+                    resolve();
+                }, item.duration);
+            });
+
+            if (myGen !== generation) break;
+
+            // ẩn với animation hide
+            await new Promise(resolve => {
+                // clear anim timer cũ
+                if (currentAnimTimer) { clearTimeout(currentAnimTimer); currentAnimTimer = null; }
+                notificationDiv.style.animation = `notificationHide ${HIDE_ANIM_MS}ms ease forwards`;
+                currentAnimTimer = setTimeout(() => {
+                    // chỉ set display none nếu vẫn là cùng generation (không bị hide khác chen vào)
+                    if (myGen === generation) {
+                        notificationDiv.style.display = "none";
+                    }
+                    // reset animation property để trạng thái rõ ràng
+                    notificationDiv.style.animation = "none";
+                    currentAnimTimer = null;
+                    resolve();
+                }, HIDE_ANIM_MS);
+            });
+
+            if (myGen !== generation) break;
+        }
+
+        processing = false;
+
+        // Nếu ai đó push thêm item sau khi loop kết thúc, khởi lại
+        if (notificationQueue.length > 0) {
+            processQueue();
+        }
+    }
+
+    // Xoá hết queue và ẩn ngay (play hide animation)
+    function hide_notification() {
+        // tăng generation cancel mọi thao tác cũ
+        generation++;
+
+        // xoá queue
+        notificationQueue = [];
+
+        // clear timers đang chờ
+        if (currentTimer) { clearTimeout(currentTimer); currentTimer = null; }
+        if (currentAnimTimer) { clearTimeout(currentAnimTimer); currentAnimTimer = null; }
+
+        // phát animation hide ngay
+        // đảm bảo element hiện để animation có thể play (nếu cần)
+        if (getComputedStyle(notificationDiv).display === "none") {
+            notificationDiv.style.display = "flex";
+        }
+        notificationDiv.style.animation = `notificationHide ${HIDE_ANIM_MS}ms ease forwards`;
+
+        // sau animation thì ẩn thật
+        setTimeout(() => {
+            // ẩn bất kể generation — vì hide là yêu cầu dọn dẹp
+            notificationDiv.style.display = "none";
+            notificationDiv.style.animation = "none";
+            processing = false;
+        }, HIDE_ANIM_MS);
+    }
 
     // Load saved theme on page load
     document.addEventListener("DOMContentLoaded", function () {

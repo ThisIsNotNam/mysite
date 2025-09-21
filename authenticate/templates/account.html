@@ -3,18 +3,24 @@
 
 {% block content %}
 <div class="container py-4 anim-l-1">
-    <h2 class="mb-4 all-l-ani-1">@{{ profileUser.username }}'s Profile</h2>
+    <h2 class="mb-4 all-l-ani-1">User's Profile</h2>
 
-    <div class="card mb-4 all-l-ani-1">
+    <div class="card mb-4 all-l-ani-1" style="overflow: hidden;">
         <div class="card-body all-l-ani-1">
 
-            <p class="card-text mb-1 all-l-ani-1"><strong>Email:</strong>
+            <p class="card-text mb-1 all-l-ani-1"><strong>Username:</strong>
+                {{ profileUser.username }}
+            </p>
+
+            <p class="card-text mb-1 all-l-ani-1 mt-3"><strong>Email:</strong>
                 {% if profileUser.email %}
                     {{ profileUser.email }}
                 {% else %}
                     <span class="text-muted all-l-ani-1">Not set</span>
                 {% endif %}
             </p>
+
+            <div class="seperator-2"></div>
 
             <p class="card-text mb-1 all-l-ani-1"><strong>Joined on:</strong> {{ profileUser.date_joined|date:"F j, Y" }}</p>
 
@@ -27,146 +33,68 @@
         </div>
     </div>
 
-    <h4 class="mb-3 all-l-ani-1">{{ profileUser.username }}'s Posts</h4>
-    {% if posts %}
-        <div class="list-group all-l-ani-1" id="posts-container">
-            {% for post in posts %}
-                <div class="list-group-item position-relative hover-anim-2 all-l-ani-1">
-<!--------------------------------------------------------------------------------------------------->
-<!-- Delete Button -->
- 
-                {% if request.user == post.author or request.user.is_staff %}
-                    <form method="post" action="/posts/{{ post.id }}/delete/"
-                          class="position-absolute top-0 end-0 m-2 all-l-ani-1"
-                          onsubmit="return confirm('Are you sure you want to delete this post?');">
-                        {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit" class="all-l-ani-1 btn btn-sm btn-outline-danger" title="Delete">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
-                {% endif %}
-<!--------------------------------------------------------------------------------------------------->
-                    <h5 class="mb-1 all-l-ani-1">{{ post.title }}</h5>
-
-                    <small class="text-muted all-l-ani-1">Posted by @{{ post.author }} on {{ post.date|date:"F j, Y, g:i a" }}</small>
-<!--------------------------------------------------------------------------------------------------->
-                    <div class="post-body post-body-clamp all-l-ani-1">
-                    {{ post.body }}
-                    </div>
-                    <a class="see-more-text link-secondary text-decoration-underline all-l-ani-1" href="#">See more...</a>
-<!--------------------------------------------------------------------------------------------------->
-<!--vote options-->
-                    <div class="d-flex align-items-center mt-4 all-l-ani-1" data-post-id="{{ post.id }}">
-                        <button
-                            class="btn all-l-ani-1 btn-sm {% if post.userVote == 'up' %}btn-success{% else %}btn-outline-success{% endif %} me-2 upvote-btn">
-                            👍 <span class="upvote-count all-l-ani-1">{{ post.get_upvotes }}</span>
-                        </button>
-
-                        <button
-                            class="btn all-l-ani-1 btn-sm {% if post.userVote == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %} downvote-btn">
-                            👎 <span class="downvote-count all-l-ani-1">{{ post.get_downvotes }}</span>
-                        </button>
-                    </div>
-
-                </div>
-            {% endfor %}
+    <h4 class="mb-3 all-l-ani-1">User's Details</h4>
+    <div class="card mb-4 all-l-ani-1" style="overflow: auto;">
+        <div class="card-body card-usr-deltail all-l-ani-1">
+            <div class="card-p-p-1">
+                <h3 class="h2-p-p-1-v h2-post no-wrap-p-1">Posts</h3>
+                <span class="no-wrap-p-1 data-count" data-counts="{{ profileUser.post_count }}">0</span>
+            </div>
+            <div class="card-p-p-1">
+                <h3 class="h2-p-p-1-v h2-vote no-wrap-p-1">Votes</h3>
+                <span class="no-wrap-p-1 data-count" data-counts="{{ profileUser.vote_count }}">0</span>
+            </div>
+            <div class="card-p-p-1">
+                <h3 class="h2-p-p-1-v h2-bookmark no-wrap-p-1">Bookmarks</h3>
+                <span class="no-wrap-p-1 data-count" data-counts="{{ profileUser.bookmark_count }}">0</span>
+            </div>
+            <div class="card-p-p-1">
+                <h3 class="h2-p-p-1-v h2-comment no-wrap-p-1">Comments</h3>
+                <span class="no-wrap-p-1 data-count" data-counts="328789223233">0</span>
+            </div>
         </div>
-    {% else %}
-        <div class="alert alert-info hover-anim-2 all-l-ani-1">
-            {% if user == profileUser %}
-                You haven't posted anything yet.
-            {% else %}
-                {{ profileUser.username }} hasn't posted anything yet.
-            {% endif %}
-        </div>
-    {% endif %}
+    </div>
+    
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-//Voting logics
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.upvote-btn, .downvote-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const postElement = this.closest('[data-post-id]');
-            const postId = postElement.getAttribute('data-post-id');
-            const voteType = this.classList.contains('upvote-btn') ? 'up' : 'down';
+    document.addEventListener("DOMContentLoaded", function () {
+        const counters = document.querySelectorAll(".data-count");
+        const speed = 80n; // tốc độ (sử dụng BigInt)
 
-            fetch('/posts/vote/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ postId, voteType })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.up !== undefined && data.down !== undefined) {
-                    const formatter = new Intl.NumberFormat('en', {
-                        notation: 'compact',
-                        compactDisplay: 'short'
-                    });
+        const animateCount = (counter) => {
+            let start = 0n; // BigInt
+            const target = BigInt(counter.getAttribute("data-counts"));
 
-                    postElement.querySelector('.upvote-count').textContent = formatter.format(data.up);
-                    postElement.querySelector('.downvote-count').textContent = formatter.format(data.down);
-
-                    const upBtn = postElement.querySelector('.upvote-btn');
-                    const downBtn = postElement.querySelector('.downvote-btn');
-
-                    upBtn.classList.remove('btn-success', 'btn-outline-success');
-                    downBtn.classList.remove('btn-danger', 'btn-outline-danger');
-
-                    if (data.userVote === 'up') {
-                        upBtn.classList.add('btn-success');
-                        downBtn.classList.add('btn-outline-danger');
-                    } else if (data.userVote === 'down') {
-                        upBtn.classList.add('btn-outline-success');
-                        downBtn.classList.add('btn-danger');
-                    } else {
-                        upBtn.classList.add('btn-outline-success');
-                        downBtn.classList.add('btn-outline-danger');
-                    }
+            const updateCount = () => {
+                const inc = target / speed + 1n; // bước nhảy, luôn >= 1
+                if (start < target) {
+                    start = start + inc;
+                    if (start > target) start = target;
+                    counter.innerText = shortenNumber(start);
+                    requestAnimationFrame(updateCount);
                 } else {
-                    console.error(data.error);
+                    counter.innerText = shortenNumber(target);
                 }
-            })
-            .catch(err => console.error('Request failed:', err));
+            };
+            updateCount();
+        };
+
+        // Dùng IntersectionObserver
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCount(entry.target);
+                    obs.unobserve(entry.target); // chỉ chạy 1 lần
+                }
+            });
+        }, { threshold: 0.3 });
+
+        counters.forEach(counter => {
+            observer.observe(counter);
         });
     });
-});
-
-//See more / See less logic
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.post-body').forEach(post => {
-        const seeMore = post.nextElementSibling;
-
-        // Create a clone to measure height
-        const clone = post.cloneNode(true);
-        clone.style.position = 'absolute';
-        clone.style.visibility = 'hidden';
-        clone.style.height = 'auto';
-        clone.style.maxHeight = 'none';
-        clone.style.webkitLineClamp = 'unset';
-        clone.classList.remove('post-body-clamp');
-        document.body.appendChild(clone);
-
-        if (clone.offsetHeight <= post.offsetHeight) {
-            seeMore.style.display = 'none';
-        }
-
-        document.body.removeChild(clone);
-    });
-
-    document.querySelectorAll('.see-more-text').forEach(span => {
-        span.addEventListener('click', function () {
-            const post = this.previousElementSibling;
-            post.classList.toggle('expanded');
-            this.textContent = post.classList.contains('expanded') ? 'See less' : 'See more...';
-        });
-    });
-});
 </script>
 {% endblock %}

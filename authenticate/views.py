@@ -19,25 +19,22 @@ def signup(request):
 
 
 def viewProfile(request, profileId):
-    profileUser = get_object_or_404(User, id=profileId)
-
-    # Subquery to get the current user's vote on each post
-    user_vote_subquery = Vote.objects.filter(
-        post=OuterRef('pk'),
-        user=request.user
-    ).values('voteType')[:1]
-
-    # Annotate each post with the user's vote
-    posts = Post.objects.filter(author=profileUser).order_by('-date').annotate(
-        userVote=Coalesce(
-            Subquery(user_vote_subquery, output_field=CharField()),
-            Value('none')
-        )
+    profileUser = get_object_or_404(
+        User.objects.annotate(
+            post_count=Count("post", distinct=True),  # số post của user
+            vote_count=Count("post__votes", distinct=True),  # tổng vote (up + down)
+            bookmark_count=Count("post__bookmarks", distinct=True)  # tổng bookmark
+        ),
+        id=profileId
     )
+
+    # profileUser.email = "223791873128739128379128371298379223791873128739128379128371222379187312873912837912837129837922379187312873912837912837129837922379187312873912837912837129837998379223791873128739128379128371298379"
+
+    if (profileUser.email is not None) and (len(profileUser.email) > 110):
+        profileUser.email = profileUser.email[:(110 - 3)] + "..."
 
     return render(request, "account.html", {
         "profileUser": profileUser,
-        "posts": posts
     })
 
 
@@ -51,6 +48,8 @@ def viewProfile(request, profileId):
 def accountsList(request):
     if not request.user.is_authenticated:
         return redirect("/")
+    
+    max_len_of_username01 = 130
 
     users = User.objects.all().order_by('-date_joined')
 
@@ -58,14 +57,20 @@ def accountsList(request):
     users = users.annotate(
         post_count=Count("post", distinct=True),  # số post của user
         vote_count=Count("post__votes", distinct=True),  # tổng vote (up + down)
-        bookmark_count=Count("post__bookmarks", distinct=True),  # tổng bookmark
-        like_count=Count("post__votes", filter=Q(post__votes__voteType="up"), distinct=True)  # tổng like
+        like_count=Count("post__votes", filter=Q(post__votes__voteType="up"), distinct=True),  # tổng like
+        dislike_count=Count("post__votes", filter=Q(post__votes__voteType="down"), distinct=True),  # tổng dislike
+        bookmark_count=Count("post__bookmarks", distinct=True)  # tổng bookmark
     )
 
     # Phân trang (10 user/trang)
     paginator = Paginator(users, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
+
+    for user in page_obj:
+        if len(user.username) > max_len_of_username01:
+            user.username = user.username[:(max_len_of_username01 - 3)] + "..."
+
 
     return render(request, "accountsList.html", {
         "users": page_obj.object_list,

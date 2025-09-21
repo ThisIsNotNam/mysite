@@ -102,6 +102,9 @@
           // el.style.color = '#d97706'; // Dark orange text
           el.style.animation = 'highlightDay 1s ease forwards';
         });
+        if (dayMatch.length > 0) {
+          show_notification(`${dayMatch[0].innerHTML}`, 4.3);
+        }
       } else {
         const buttonError = document.createElement('button');
         buttonError.className = 'errorLink';
@@ -114,6 +117,7 @@
           el.appendChild(buttonError);
           el.style.animation = 'highlightErr 1s ease forwards';
         });
+        show_notification(`ERROR`, 5.1);
       }
     }, 1000); // Simulate a 1.2 second load time
   });

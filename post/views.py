@@ -55,6 +55,9 @@ def postsList(request):
     canShowAll = False  # default
     maxLen01 = 16
 
+    max_len_of_title01 = 60
+    max_len_of_body01 = 130
+
     if user_posts_id is not None:
         try:
             selected_user = User.objects.get(id=int(user_posts_id))
@@ -121,6 +124,17 @@ def postsList(request):
     paginator = Paginator(postsQuery, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
+
+    for post in page_obj:
+        if len(post.title) > max_len_of_title01:
+            post.short_title = post.title[:(max_len_of_title01 - 3)] + "..."
+        else:
+            post.short_title = post.title
+
+        if len(post.body) > max_len_of_body01:
+            post.short_body = post.body[:(max_len_of_body01 - 3)] + "..."
+        else:
+            post.short_body = post.body
 
     return render(request, "postsList.html", {
         'page_obj': page_obj,   # dùng page_obj thay vì posts

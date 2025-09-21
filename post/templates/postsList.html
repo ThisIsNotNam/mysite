@@ -17,7 +17,6 @@
 {% endblock %}
 
 {% block content %}
-
 <!-- <p>{{ userStatusPostShow }}, {{ userNamePostShow }}</p> -->
 
 {% if userStatusPostShow == "0" %}
@@ -54,12 +53,14 @@
             {% endif %}
         </h1>
         <div class="d-flex anim-l-1" style="margin-left: .7rem;">
-            {% if userStatusPostShow == "0" %}
-                <a href="/posts/bookmarksview" class="btn btn-success all-l-ani-1 me-2">My Bookmark Posts</a>
-                <a href="/posts/new" class="btn btn-success all-l-ani-1">+ New Post</a>
-            {% else %}
-                <a href="/posts/bookmarksview/?user={{ userIdPostShow }}" class="btn btn-success all-l-ani-1 me-2">This user's post that I have marked as</a>
-            {% endif %}
+            <div class="d-flex anim-l-1" style="flex-wrap: wrap;">
+                {% if userStatusPostShow == "0" %}
+                    <a href="/posts/bookmarksview" class="btn btn-success all-l-ani-1 me-2 mt-p-p-1">My Bookmark Posts</a>
+                    <a href="/posts/new" class="btn btn-success all-l-ani-1 mt-p-p-1">+ New Post</a>
+                {% else %}
+                    <a href="/posts/bookmarksview/?user={{ userIdPostShow }}" class="btn btn-success all-l-ani-1 me-2 mt-p-p-1">This user's post that I have marked as</a>
+                {% endif %}
+                </div>
         </div>
     </div>
 <!--------------------------------------------------------------------------------------------------->
@@ -157,10 +158,10 @@
                 </li>
             </ul>
         </nav>
-        <div class="list-group all-l-ani-1" id="posts-container">
+        <div class="all-l-ani-1" id="posts-container">
             {% for post in page_obj %}
                 <!-- console.log("{{ post }}"); -->
-                <div class="rsplit-2 list-group-item position-relative post-clickable all-l-ani-1 hover-anim-1" data-href="/posts/{{ post.id }}/" style="cursor: pointer;">
+                <div class="rsplit-2 post-card-item-1 position-relative post-clickable all-l-ani-1 hover-anim-1" data-href="/posts/{{ post.id }}/" style="cursor: pointer;">
 <!--------------------------------------------------------------------------------------------------->
 <!-- Delete Button -->
                 {% if request.user == post.author or request.user.is_staff %}
@@ -178,12 +179,12 @@
                     </form>
                 {% endif %}
 <!--------------------------------------------------------------------------------------------------->
-                    <h5 class="all-l-ani-1 rsplit-1">{{ post.title }}</h5>
+                    <h5 class="all-l-ani-1 rsplit-1">{{ post.short_title }}</h5>
                     <div class="nowrap-1">
                     <small class="text-muted all-l-ani-1">Posted by @<span class="outer-flex-1" id="canal-1" data-postauthor="{{ post.author }}"></span></small>
                     </div><div class="seperator-1"></div>
                     <div class="rsplit-3 post-body post-body-clamp all-l-ani-1">
-                    {{ post.body }}
+                    {{ post.short_body }}
                     </div>
                     <a class="see-more-text link-secondary text-decoration-underline all-l-ani-1" href="#">See more...</a>
                     <div class="seperator-2"></div><p class="post-title-1">{{ post.date|date:"F j, Y, g:i a" }}</p>
@@ -427,22 +428,29 @@ document.addEventListener('DOMContentLoaded', function () {
                         downBtn.classList.add('btn-outline-danger');
                         upSvg.setAttribute('fill', "white");
                         downSvg.setAttribute('fill', "none");
+                        show_notification("You liked a post", 3.4);
                     } else if (data.userVote === 'down') {
                         upBtn.classList.add('btn-outline-success');
                         downBtn.classList.add('btn-danger');
                         upSvg.setAttribute('fill', "none");
                         downSvg.setAttribute('fill', "white");
+                        show_notification("You disliked a post", 3.4);
                     } else {
                         upBtn.classList.add('btn-outline-success');
                         downBtn.classList.add('btn-outline-danger');
                         upSvg.setAttribute('fill', "none");
                         downSvg.setAttribute('fill', "none");
+                        show_notification("You have unrated a post", 3.4);
                     }
                 } else {
                     console.error(data.error);
+                    show_notification(`There was an error rating the post: ${stringShorten(data.error, 8)}. See the console for more information`);
                 }
             })
-            .catch(err => console.error('Request failed:', err));
+            .catch(err => {
+                console.error('Request failed:', err);
+                show_notification(`There was an error rating the post: ${stringShorten(err, 8)}. See the console for more information`);
+            });
         });
     });
     document.querySelectorAll('.bookmark-btn').forEach(button => {
@@ -477,15 +485,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (data.isBookmarked) {
                         bookmarkBtn.classList.add('btn-warning');
                         bookmarkSvg.setAttribute('fill', 'white');
+                        show_notification("You bookmarked a post", 3.4);
                     } else {
                         bookmarkBtn.classList.add('btn-outline-warning');
                         bookmarkSvg.setAttribute('fill', 'none');
+                        show_notification("You unbookmarked a post", 3.4);
                     }
                 } else {
                     console.error(data.error);
+                    show_notification(`There was an error bookmarking the post: ${stringShorten(data.error, 8)}. See the console for more information`);
                 }
             })
-            .catch(err => console.error('Request failed:', err));
+            .catch(err => {
+                console.error('Request failed:', err);
+                show_notification(`There was an error bookmarking the post: ${stringShorten(err, 8)}. See the console for more information`);
+            });
         });
     });
 });
